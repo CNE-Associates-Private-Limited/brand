@@ -1,8 +1,9 @@
 // Renders the wordmark, lockups, avatars, LinkedIn banner and default OG image from code.
 // Deterministic: same tokens + same fonts = same pixels. Run: pnpm build:assets
-import satori from "satori";
+
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
-import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import satori from "satori";
 
 const tokens = JSON.parse(readFileSync("tokens/tokens.json", "utf8"));
 const L = Object.fromEntries(Object.entries(tokens.color.light).map(([k, v]) => [k, v.$value]));
