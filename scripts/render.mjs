@@ -1,11 +1,10 @@
 // Renders the wordmark, lockups, avatars, LinkedIn banner and default OG image from code.
 // Deterministic: same tokens + same fonts = same pixels. Run: pnpm build:assets
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
 import sharp from "sharp";
-import { existsSync } from "node:fs";
 
 async function dataUri(path, width) {
   if (!existsSync(path)) return null;
