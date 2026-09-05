@@ -1,0 +1,48 @@
+{
+  "name": "@cne/brand",
+  "version": "0.1.0",
+  "description": "Lenswright by CNE Associates: brand marks, design tokens, fonts and asset templates.",
+  "type": "module",
+  "license": "MIT",
+  "repository": "github:CNE-Associates-Private-Limited/brand",
+  "files": [
+    "marks",
+    "dist",
+    "fonts/web",
+    "fonts/*-OFL.txt",
+    "email",
+    "tokens/tokens.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    "./tokens.css": "./dist/tokens/tokens.css",
+    "./theme.css": "./dist/tokens/theme.css",
+    "./tokens.json": "./tokens/tokens.json",
+    "./tokens.flat.json": "./dist/tokens/tokens.flat.json",
+    "./marks/*": "./marks/*",
+    "./fonts/*": "./fonts/web/*"
+  },
+  "scripts": {
+    "build": "pnpm build:tokens && pnpm build:assets && pnpm build:icons",
+    "build:tokens": "node tokens/build.mjs",
+    "build:assets": "node scripts/render.mjs",
+    "build:icons": "node scripts/icons.mjs",
+    "test": "vitest run",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "node --check tokens/build.mjs && node --check scripts/render.mjs && node --check scripts/icons.mjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.12",
+    "@resvg/resvg-js": "2.6.2",
+    "satori": "0.33.4",
+    "sharp": "0.35.4",
+    "style-dictionary": "5.5.2",
+    "vitest": "5.0.0"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22"
+  }
+}
