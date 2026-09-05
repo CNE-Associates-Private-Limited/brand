@@ -1,0 +1,152 @@
+{
+  "name": "Lenswright by CNE Associates",
+  "colors": [
+    {
+      "name": "light/ground",
+      "hex": "#F4F5F7"
+    },
+    {
+      "name": "light/surface",
+      "hex": "#FFFFFF"
+    },
+    {
+      "name": "light/surface-2",
+      "hex": "#E9ECF0"
+    },
+    {
+      "name": "light/line",
+      "hex": "#DDE1E6"
+    },
+    {
+      "name": "light/line-strong",
+      "hex": "#C9CDD3"
+    },
+    {
+      "name": "light/ink",
+      "hex": "#0E1116"
+    },
+    {
+      "name": "light/ink-2",
+      "hex": "#3A424D"
+    },
+    {
+      "name": "light/muted",
+      "hex": "#5B6470"
+    },
+    {
+      "name": "light/lens",
+      "hex": "#2F6DB5"
+    },
+    {
+      "name": "light/lens-ink",
+      "hex": "#FFFFFF"
+    },
+    {
+      "name": "light/lens-soft",
+      "hex": "#E3ECF7"
+    },
+    {
+      "name": "light/sand",
+      "hex": "#C4A46A"
+    },
+    {
+      "name": "light/sand-soft",
+      "hex": "#F3ECDD"
+    },
+    {
+      "name": "light/ok",
+      "hex": "#2E7D4F"
+    },
+    {
+      "name": "light/warn",
+      "hex": "#B7791F"
+    },
+    {
+      "name": "light/danger",
+      "hex": "#C0392B"
+    },
+    {
+      "name": "light/info",
+      "hex": "#2F6DB5"
+    },
+    {
+      "name": "dark/ground",
+      "hex": "#0A0D11"
+    },
+    {
+      "name": "dark/surface",
+      "hex": "#151920"
+    },
+    {
+      "name": "dark/surface-2",
+      "hex": "#1D222B"
+    },
+    {
+      "name": "dark/line",
+      "hex": "#262C36"
+    },
+    {
+      "name": "dark/line-strong",
+      "hex": "#38404C"
+    },
+    {
+      "name": "dark/ink",
+      "hex": "#EEF1F4"
+    },
+    {
+      "name": "dark/ink-2",
+      "hex": "#C3C9D2"
+    },
+    {
+      "name": "dark/muted",
+      "hex": "#A7AEB8"
+    },
+    {
+      "name": "dark/lens",
+      "hex": "#6FA0E0"
+    },
+    {
+      "name": "dark/lens-ink",
+      "hex": "#0A0D11"
+    },
+    {
+      "name": "dark/lens-soft",
+      "hex": "#17263A"
+    },
+    {
+      "name": "dark/sand",
+      "hex": "#D9BE86"
+    },
+    {
+      "name": "dark/sand-soft",
+      "hex": "#2C251A"
+    },
+    {
+      "name": "dark/ok",
+      "hex": "#5FBF87"
+    },
+    {
+      "name": "dark/warn",
+      "hex": "#E0A548"
+    },
+    {
+      "name": "dark/danger",
+      "hex": "#E5675A"
+    },
+    {
+      "name": "dark/info",
+      "hex": "#6FA0E0"
+    }
+  ],
+  "fonts": {
+    "heading": "Hanken Grotesk",
+    "body": "Hanken Grotesk",
+    "mono": "Red Hat Mono"
+  },
+  "logos": [
+    "marks/mark-light.svg",
+    "marks/mark-dark.svg",
+    "dist/wordmark/lockup-horizontal-light.svg",
+    "dist/wordmark/lockup-horizontal-dark.svg"
+  ]
+}

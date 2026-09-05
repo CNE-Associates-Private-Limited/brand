@@ -1,0 +1,92 @@
+/* Lenswright by CNE Associates. Generated from tokens/tokens.json; do not edit. */
+:root {
+  --cne-ground: #F4F5F7;
+  --cne-surface: #FFFFFF;
+  --cne-surface-2: #E9ECF0;
+  --cne-line: #DDE1E6;
+  --cne-line-strong: #C9CDD3;
+  --cne-ink: #0E1116;
+  --cne-ink-2: #3A424D;
+  --cne-muted: #5B6470;
+  --cne-lens: #2F6DB5;
+  --cne-lens-ink: #FFFFFF;
+  --cne-lens-soft: #E3ECF7;
+  --cne-sand: #C4A46A;
+  --cne-sand-soft: #F3ECDD;
+  --cne-ok: #2E7D4F;
+  --cne-warn: #B7791F;
+  --cne-danger: #C0392B;
+  --cne-info: #2F6DB5;
+  --cne-shadow: 0 1px 2px rgba(14,17,22,.06), 0 8px 24px rgba(14,17,22,.06);
+  --cne-font-display: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --cne-font-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --cne-font-mono: "Red Hat Mono", SFMono-Regular, Menlo, monospace;
+  --cne-text-xs: 0.75rem;
+  --cne-text-sm: 0.875rem;
+  --cne-text-base: 1rem;
+  --cne-text-lg: 1.25rem;
+  --cne-text-xl: 1.5625rem;
+  --cne-text-2xl: 1.953rem;
+  --cne-text-3xl: 2.441rem;
+  --cne-text-4xl: 3.052rem;
+  --cne-text-5xl: 3.815rem;
+  --cne-leading-tight: 1.05;
+  --cne-leading-snug: 1.25;
+  --cne-leading-body: 1.55;
+  --cne-tracking-display: -0.03em;
+  --cne-tracking-label: 0.08em;
+  --cne-radius-sm: 4px;
+  --cne-radius-md: 8px;
+  --cne-radius-pill: 999px;
+  --cne-chart-1: #2F6DB5;
+  --cne-chart-2: #C4A46A;
+  --cne-chart-3: #2E7D4F;
+  --cne-chart-4: #7A5CB5;
+  --cne-chart-5: #B5602F;
+  --cne-chart-6: #5B6470;
+  --cne-ease: cubic-bezier(0.2,0.7,0.2,1);
+  --cne-dur-fast: 120ms;
+  --cne-dur: 220ms;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --cne-ground: #0A0D11;
+  --cne-surface: #151920;
+  --cne-surface-2: #1D222B;
+  --cne-line: #262C36;
+  --cne-line-strong: #38404C;
+  --cne-ink: #EEF1F4;
+  --cne-ink-2: #C3C9D2;
+  --cne-muted: #A7AEB8;
+  --cne-lens: #6FA0E0;
+  --cne-lens-ink: #0A0D11;
+  --cne-lens-soft: #17263A;
+  --cne-sand: #D9BE86;
+  --cne-sand-soft: #2C251A;
+  --cne-ok: #5FBF87;
+  --cne-warn: #E0A548;
+  --cne-danger: #E5675A;
+  --cne-info: #6FA0E0;
+    --cne-shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] {
+  --cne-ground: #0A0D11;
+  --cne-surface: #151920;
+  --cne-surface-2: #1D222B;
+  --cne-line: #262C36;
+  --cne-line-strong: #38404C;
+  --cne-ink: #EEF1F4;
+  --cne-ink-2: #C3C9D2;
+  --cne-muted: #A7AEB8;
+  --cne-lens: #6FA0E0;
+  --cne-lens-ink: #0A0D11;
+  --cne-lens-soft: #17263A;
+  --cne-sand: #D9BE86;
+  --cne-sand-soft: #2C251A;
+  --cne-ok: #5FBF87;
+  --cne-warn: #E0A548;
+  --cne-danger: #E5675A;
+  --cne-info: #6FA0E0;
+  --cne-shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
