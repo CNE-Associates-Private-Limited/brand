@@ -1,8 +1,9 @@
 // Builds every export of the Lenswright tokens from tokens/tokens.json.
 // Outputs: dist/tokens/tokens.css (CSS variables, light + dark), theme.css (Tailwind v4),
 // tokens.flat.json, figma.tokens.json (Tokens Studio), canva.json (brand kit values).
-import StyleDictionary from "style-dictionary";
+
 import { mkdirSync, writeFileSync } from "node:fs";
+import StyleDictionary from "style-dictionary";
 
 const OUT = "dist/tokens/";
 mkdirSync(OUT, { recursive: true });

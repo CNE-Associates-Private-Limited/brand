@@ -1,6 +1,7 @@
 // Fails the build if any core text/background pair in either theme drops below WCAG AA.
-import { describe, expect, it } from "vitest";
+
 import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
 
 const tokens = JSON.parse(readFileSync("tokens/tokens.json", "utf8"));
 const theme = (name) => Object.fromEntries(Object.entries(tokens.color[name]).map(([k, v]) => [k, v.$value]));

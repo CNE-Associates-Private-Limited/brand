@@ -1,8 +1,9 @@
 // Generates the favicon and app-icon set from marks/favicon.svg and marks/avatar-dark.svg.
 // Run: pnpm build:icons  (needs ImageMagick `magick` on PATH for the .ico)
-import sharp from "sharp";
-import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
+
 import { execFileSync } from "node:child_process";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import sharp from "sharp";
 
 const OUT = "dist/icons/";
 mkdirSync(OUT, { recursive: true });
