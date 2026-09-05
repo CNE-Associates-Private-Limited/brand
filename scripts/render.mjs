@@ -4,6 +4,18 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
+import sharp from "sharp";
+import { existsSync } from "node:fs";
+
+async function dataUri(path, width) {
+  if (!existsSync(path)) return null;
+  const buf = await sharp(path).trim().resize({ width, withoutEnlargement: true }).png().toBuffer();
+  return `data:image/png;base64,${buf.toString("base64")}`;
+}
+const front3d = await dataUri("dist/3d/aperture-3d-front.png", 900);
+const hero3d = await dataUri("dist/3d/aperture-3d-hero.png", 1000);
+const tilt3d = await dataUri("dist/3d/aperture-3d-tilt.png", 900);
+const Img = (src, w, hgt, extra = {}) => h("img", { src, width: w, height: hgt, style: { width: w, height: hgt, ...extra } });
 
 const tokens = JSON.parse(readFileSync("tokens/tokens.json", "utf8"));
 const L = Object.fromEntries(Object.entries(tokens.color.light).map(([k, v]) => [k, v.$value]));
@@ -200,7 +212,7 @@ await out(
         "Any domain, any stage · by CNE Associates",
       ),
     ),
-    Mark({ size: 260, ring: D.surface2 ?? "#1D222B", slit: D.lens }),
+    hero3d ? Img(hero3d, 460, 460, { marginRight: -60 }) : Mark({ size: 260, ring: "#1D222B", slit: D.lens }),
   ),
   1584,
   396,
@@ -231,19 +243,24 @@ await out(
     ),
     h(
       "div",
-      {
-        style: {
-          fontFamily: "Hanken Grotesk",
-          fontWeight: 700,
-          fontSize: 64,
-          letterSpacing: "-0.035em",
-          lineHeight: 1.02,
-          color: L.ink,
-          display: "flex",
-          maxWidth: 980,
+      { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 } },
+      h(
+        "div",
+        {
+          style: {
+            fontFamily: "Hanken Grotesk",
+            fontWeight: 700,
+            fontSize: 60,
+            letterSpacing: "-0.035em",
+            lineHeight: 1.02,
+            color: L.ink,
+            display: "flex",
+            maxWidth: 720,
+          },
         },
-      },
-      "Put an intelligence layer into your business.",
+        "Put an intelligence layer into your business.",
+      ),
+      tilt3d ? Img(tilt3d, 300, 300) : Mark({ size: 220, ring: L.ink, slit: L.lens }),
     ),
     h(
       "div",

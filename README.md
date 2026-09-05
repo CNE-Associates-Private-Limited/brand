@@ -14,6 +14,8 @@ The source of truth for the Lenswright identity: marks, tokens, fonts and the te
 | `fonts/` | Hanken Grotesk and Red Hat Mono, variable TTF (OFL), static instances for renderers, subset woff2 for the web | Only on a font change |
 | `scripts/render.mjs` | Renders wordmark, lockups, avatars, LinkedIn banner and the default OG image | When an asset layout changes |
 | `scripts/icons.mjs` | Favicon and app icon set plus `site.webmanifest` | Rarely |
+| `scripts/render3d.py` | Blender (headless) render of the mark as a physical object: `pnpm build:3d` writes `dist/3d/` | When the material or lighting changes |
+| `scripts/board.mjs` | Composes the 3 × 3 brand board from the real assets: `pnpm build:board` | When the board layout changes |
 | `email/signature.html` | The HTML email signature | When contact details change |
 | `dist/` | Generated. Never edit; run `make build` | No |
 
