@@ -26,7 +26,7 @@ Every asset is generated from that one file: `marks/`, the lockups, avatars, ban
 plates (`render3d.py` reads `dist/mark-polygons.json`), the brand board and the mark sheet.
 
 Same day, on Anmol's instruction, every other mark and study was removed from the tree: the aperture ring, the
-Iris/Focal/Prism/Pulse/Core round, the FLUX-generated candidates and their traces, the six monograms, the Figma
+Iris/Focal/Prism/Pulse/Core round, the FLUX and Canva generated candidates and their traces, the six monograms, the Figma
 lettermark studies, the softened and heavy hand-built lettermarks, and the Recraft rounds. They remain in git
 history up to `a3d5c1d`; the Recraft originals, including the R3 trace the geometry was measured from, are at
 `8d3b0e7` under `dist/explore/recraft/`. The 3D script now knows only `cne` and `mark-c`.
