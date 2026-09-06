@@ -1,7 +1,7 @@
 {
   "name": "@cne/brand",
   "version": "0.1.0",
-  "description": "Lenswright by CNE Associates: brand marks, design tokens, fonts and asset templates.",
+  "description": "CNE Associates: brand marks, design tokens, fonts and asset templates.",
   "type": "module",
   "license": "MIT",
   "repository": "github:CNE-Associates-Private-Limited/brand",
@@ -24,19 +24,18 @@
     "./fonts/*": "./fonts/web/*"
   },
   "scripts": {
-    "build": "pnpm build:tokens && pnpm build:assets && pnpm build:icons",
+    "build": "pnpm build:marks && pnpm build:tokens && pnpm build:assets && pnpm build:icons",
+    "build:marks": "node scripts/marks.mjs",
     "build:tokens": "node tokens/build.mjs",
     "build:assets": "node scripts/render.mjs",
     "build:icons": "node scripts/icons.mjs",
+    "build:board": "node scripts/board.mjs",
+    "build:3d": "/Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/3d 256 cne && /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/3d 256 mark-c",
+    "build:atmosphere": "bash scripts/atmosphere.sh",
     "test": "vitest run",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "typecheck": "node --check tokens/build.mjs && node --check scripts/render.mjs && node --check scripts/icons.mjs && node --check scripts/board.mjs",
-    "build:board": "node scripts/board.mjs",
-    "build:3d": "/Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/3d 256",
-    "build:atmosphere": "bash scripts/atmosphere.sh",
-    "explore:marks": "node scripts/marks-explore.mjs && /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/explore 96 iris && /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/explore 96 focal",
-    "explore:logos": "scripts/logo-gen.sh && scripts/logo-gen-pass2.sh"
+    "typecheck": "node --check tokens/build.mjs && node --check scripts/copy.mjs && node --check scripts/mark-geometry.mjs && node --check scripts/marks.mjs && node --check scripts/render.mjs && node --check scripts/icons.mjs && node --check scripts/board.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",

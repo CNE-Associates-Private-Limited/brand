@@ -5,15 +5,16 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
 import sharp from "sharp";
+import { DESCRIPTOR, EXPANSION, HERO, HERO_SUB, NAME } from "./copy.mjs";
+import { elements, LOGO, MARK } from "./mark-geometry.mjs";
 
 async function dataUri(path, width) {
   if (!existsSync(path)) return null;
   const buf = await sharp(path).trim().resize({ width, withoutEnlargement: true }).png().toBuffer();
   return `data:image/png;base64,${buf.toString("base64")}`;
 }
-const front3d = await dataUri("dist/3d/aperture-3d-front.png", 900);
-const hero3d = await dataUri("dist/3d/aperture-3d-hero.png", 1000);
-const tilt3d = await dataUri("dist/3d/aperture-3d-tilt.png", 900);
+const hero3d = await dataUri("dist/3d/cne-3d-hero.png", 1000);
+const tilt3d = await dataUri("dist/3d/mark-c-3d-tilt.png", 900);
 const Img = (src, w, hgt, extra = {}) => h("img", { src, width: w, height: hgt, style: { width: w, height: hgt, ...extra } });
 
 const tokens = JSON.parse(readFileSync("tokens/tokens.json", "utf8"));
@@ -29,14 +30,12 @@ const fonts = [
 
 const h = (type, props = {}, ...children) => ({ type, props: { ...props, children: children.length === 1 ? children[0] : children } });
 
-// The aperture mark as a satori-compatible SVG element.
-const Mark = ({ size, ring, slit }) =>
-  h(
-    "svg",
-    { width: size, height: size, viewBox: "0 0 140 140" },
-    h("circle", { cx: 70, cy: 70, r: 56, fill: "none", stroke: ring, strokeWidth: 12 }),
-    h("rect", { x: 34, y: 61, width: 72, height: 18, rx: 9, fill: slit }),
-  );
+// The square C with its lens core, from the shared geometry so the mark can only ever change in one place.
+const Mark = ({ size, ink, accent }) => h("svg", { width: size, height: size, viewBox: MARK.viewBox }, ...elements(MARK, h, ink, accent));
+
+// The wide CNE lettermark.
+const Logo = ({ width, ink, accent }) =>
+  h("svg", { width, height: Math.round((width * LOGO.height) / LOGO.width), viewBox: LOGO.viewBox }, ...elements(LOGO, h, ink, accent));
 
 const Wordmark = ({ size, color }) =>
   h(
@@ -52,10 +51,11 @@ const Wordmark = ({ size, color }) =>
         display: "flex",
       },
     },
-    "Lenswright",
+    NAME,
   );
 
-const Byline = ({ size, color }) =>
+/** A mono-caps line: the expansion under the wordmark, the descriptor on covers. */
+const Line = ({ size, color, text = EXPANSION, tracking = "0.1em" }) =>
   h(
     "div",
     {
@@ -63,13 +63,13 @@ const Byline = ({ size, color }) =>
         fontFamily: "Red Hat Mono",
         fontWeight: 500,
         fontSize: size,
-        letterSpacing: "0.1em",
+        letterSpacing: tracking,
         color,
         textTransform: "uppercase",
         display: "flex",
       },
     },
-    "by CNE Associates",
+    text,
   );
 
 async function svg(el, width, height) {
@@ -89,71 +89,80 @@ async function out(name, el, width, height, { alsoPng = false, pngWidth = width 
 mkdirSync("dist/wordmark", { recursive: true });
 mkdirSync("dist/social", { recursive: true });
 
-// Wordmark and lockups, light and dark, as SVG with glyphs as paths (no font dependency for consumers).
+// Wordmark and lockups, light and dark: SVG with glyphs as paths (no font dependency for consumers) plus a 2x PNG.
 for (const [theme, T] of [
   ["light", L],
   ["dark", D],
 ]) {
-  const bg = theme === "light" ? "transparent" : "transparent";
   await out(
     `dist/wordmark/wordmark-${theme}`,
-    h("div", { style: { display: "flex", padding: 8, background: bg } }, Wordmark({ size: 96, color: T.ink })),
+    h("div", { style: { display: "flex", padding: 8 } }, Wordmark({ size: 96, color: T.ink })),
     560,
     120,
+    { alsoPng: true, pngWidth: 1120 },
+  );
+  // The lettermark with its expansion beneath: the primary lockup wherever there is width.
+  await out(
+    `dist/wordmark/logo-lockup-${theme}`,
+    h(
+      "div",
+      { style: { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 14, padding: 12 } },
+      Logo({ width: 420, ink: T.ink, accent: T.lens }),
+      h("div", { style: { display: "flex", paddingLeft: 16 } }, Line({ size: 19, color: T.muted, tracking: "0.16em" })),
+    ),
+    460,
+    260,
+    { alsoPng: true, pngWidth: 920 },
   );
   await out(
     `dist/wordmark/lockup-horizontal-${theme}`,
     h(
       "div",
       { style: { display: "flex", alignItems: "center", gap: 22, padding: 12 } },
-      Mark({ size: 96, ring: T.ink, slit: T.lens }),
+      Mark({ size: 96, ink: T.ink, accent: T.lens }),
       h(
         "div",
-        { style: { display: "flex", flexDirection: "column", gap: 6 } },
+        { style: { display: "flex", flexDirection: "column", gap: 8 } },
         Wordmark({ size: 72, color: T.ink }),
-        Byline({ size: 15, color: T.muted }),
+        Line({ size: 15, color: T.muted }),
       ),
     ),
     560,
     140,
+    { alsoPng: true, pngWidth: 1120 },
   );
   await out(
     `dist/wordmark/lockup-stacked-${theme}`,
     h(
       "div",
       { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: 16 } },
-      Mark({ size: 120, ring: T.ink, slit: T.lens }),
+      Mark({ size: 120, ink: T.ink, accent: T.lens }),
       Wordmark({ size: 56, color: T.ink }),
-      Byline({ size: 13, color: T.muted }),
+      Line({ size: 13, color: T.muted }),
     ),
     360,
     300,
+    { alsoPng: true, pngWidth: 720 },
   );
 }
 
 // Avatars: dark disc with reversed mark (primary), light variant.
-await out(
-  "dist/social/avatar-dark",
-  h(
-    "div",
-    { style: { width: 500, height: 500, display: "flex", alignItems: "center", justifyContent: "center", background: D.ground } },
-    Mark({ size: 300, ring: D.ink, slit: D.lens }),
-  ),
-  500,
-  500,
-  { alsoPng: true },
-);
-await out(
-  "dist/social/avatar-light",
-  h(
-    "div",
-    { style: { width: 500, height: 500, display: "flex", alignItems: "center", justifyContent: "center", background: L.ground } },
-    Mark({ size: 300, ring: L.ink, slit: L.lens }),
-  ),
-  500,
-  500,
-  { alsoPng: true },
-);
+for (const [theme, T] of [
+  ["dark", D],
+  ["light", L],
+]) {
+  await out(
+    `dist/social/avatar-${theme}`,
+    h(
+      "div",
+      { style: { width: 500, height: 500, display: "flex", alignItems: "center", justifyContent: "center", background: T.ground } },
+      Mark({ size: 300, ink: T.ink, accent: T.lens }),
+    ),
+    500,
+    500,
+    { alsoPng: true },
+  );
+}
 
 // LinkedIn banner 1584x396.
 await out(
@@ -177,7 +186,7 @@ await out(
       h(
         "div",
         { style: { display: "flex", alignItems: "center", gap: 16 } },
-        Mark({ size: 44, ring: D.ink, slit: D.lens }),
+        Mark({ size: 44, ink: D.ink, accent: D.lens }),
         Wordmark({ size: 34, color: D.ink }),
       ),
       h(
@@ -193,25 +202,11 @@ await out(
             display: "flex",
           },
         },
-        "Put an intelligence layer into your business.",
+        HERO,
       ),
-      h(
-        "div",
-        {
-          style: {
-            fontFamily: "Red Hat Mono",
-            fontWeight: 500,
-            fontSize: 18,
-            letterSpacing: "0.08em",
-            color: D.muted,
-            textTransform: "uppercase",
-            display: "flex",
-          },
-        },
-        "Any domain, any stage · by CNE Associates",
-      ),
+      Line({ size: 18, color: D.muted, text: `${EXPANSION} · ${DESCRIPTOR}`, tracking: "0.08em" }),
     ),
-    hero3d ? Img(hero3d, 460, 460, { marginRight: -60 }) : Mark({ size: 260, ring: "#1D222B", slit: D.lens }),
+    hero3d ? Img(hero3d, 500, 216, { marginRight: 8, objectFit: "contain" }) : Logo({ width: 460, ink: "#1D222B", accent: D.lens }),
   ),
   1584,
   396,
@@ -237,7 +232,7 @@ await out(
     h(
       "div",
       { style: { display: "flex", alignItems: "center", gap: 14 } },
-      Mark({ size: 40, ring: L.ink, slit: L.lens }),
+      Mark({ size: 40, ink: L.ink, accent: L.lens }),
       Wordmark({ size: 30, color: L.ink }),
     ),
     h(
@@ -257,19 +252,15 @@ await out(
             maxWidth: 720,
           },
         },
-        "Put an intelligence layer into your business.",
+        HERO,
       ),
-      tilt3d ? Img(tilt3d, 300, 300) : Mark({ size: 220, ring: L.ink, slit: L.lens }),
+      tilt3d ? Img(tilt3d, 300, 300) : Mark({ size: 220, ink: L.ink, accent: L.lens }),
     ),
     h(
       "div",
       { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-end" } },
-      h(
-        "div",
-        { style: { fontFamily: "Hanken Grotesk", fontWeight: 400, fontSize: 24, color: L["ink-2"], display: "flex" } },
-        "Any domain, any stage. Evals and a cost ceiling in every contract.",
-      ),
-      Byline({ size: 14, color: L.muted }),
+      h("div", { style: { fontFamily: "Hanken Grotesk", fontWeight: 400, fontSize: 24, color: L["ink-2"], display: "flex" } }, HERO_SUB),
+      Line({ size: 14, color: L.muted }),
     ),
   ),
   1200,

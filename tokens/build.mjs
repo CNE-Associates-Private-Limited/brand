@@ -1,4 +1,4 @@
-// Builds every export of the Lenswright tokens from tokens/tokens.json.
+// Builds every export of the CNE Associates tokens from tokens/tokens.json.
 // Outputs: dist/tokens/tokens.css (CSS variables, light + dark), theme.css (Tailwind v4),
 // tokens.flat.json, figma.tokens.json (Tokens Studio), canva.json (brand kit values).
 
@@ -32,7 +32,7 @@ StyleDictionary.registerFormat({
   name: "cne/css",
   format: ({ dictionary }) => {
     const t = dictionary.tokens;
-    return `/* Lenswright by CNE Associates. Generated from tokens/tokens.json; do not edit. */
+    return `/* CNE Associates. Generated from tokens/tokens.json; do not edit. */
 :root {
 ${themeVars(t, "light")}
   --cne-shadow: ${t.shadow.light.$value};
@@ -68,7 +68,7 @@ StyleDictionary.registerFormat({
     const radii = Object.keys(t.radius)
       .map((n) => `  --radius-${n}: var(--cne-radius-${n});`)
       .join("\n");
-    return `/* Tailwind v4 theme for Lenswright. Import tokens.css first, then this file. Generated; do not edit. */
+    return `/* Tailwind v4 theme for CNE Associates. Import tokens.css first, then this file. Generated; do not edit. */
 @theme inline {
 ${colors}
 ${chart}
@@ -110,7 +110,7 @@ StyleDictionary.registerFormat({
     const t = dictionary.tokens;
     return JSON.stringify(
       {
-        name: "Lenswright by CNE Associates",
+        name: "CNE Associates",
         colors: [
           ...Object.entries(t.color.light).map(([n, v]) => ({ name: `light/${n}`, hex: v.$value })),
           ...Object.entries(t.color.dark).map(([n, v]) => ({ name: `dark/${n}`, hex: v.$value })),
