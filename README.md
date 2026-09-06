@@ -1,8 +1,8 @@
-# Lenswright by CNE Associates — brand
+# CNE Associates — brand
 
-The source of truth for the Lenswright identity: marks, tokens, fonts and the templates that render every asset from code. The website and every other repo import from here.
+The source of truth for the CNE Associates identity: marks, tokens, fonts and the templates that render every asset from code. The website and every other repo import from here.
 
-> Status: the name Lenswright is pending a formal trademark search. Until `STATUS.md` says cleared, do not print it on anything external.
+> Status: the brand is the legal name, CNE Associates. A class 42 trademark filing is still to be made; see `STATUS.md`.
 
 ## What is here
 
@@ -40,7 +40,7 @@ Fonts: `fonts/web/*.woff2` are subset variable fonts, self-host them. Or use `@f
 ## The identity in one screen
 
 - **Mark.** A ring with one horizontal slit: the layer a business sees through. Ring r 56, stroke 12; slit 72 × 18, fully rounded; viewBox 0 0 140 140. The ring is ink or reversed ink. The slit is lens, ink, or the ground colour. Never rotate, narrow, recolour, gradient, glow or outline it. Clear space half the ring diameter. Minimum 16 px; below 24 px use `marks/favicon.svg`.
-- **Name.** Lenswright, one word, capital L. "by CNE Associates" in mono caps beneath or after. The legal line, "CNE Associates Private Limited · CIN U80903UP2021PTC148406 · GSTIN 09AAJCC6013D1ZY", only on legal, invoice and footer surfaces.
+- **Name.** CNE Associates, set in full. "CNE" alone is allowed only where the full name already appears on the same surface. The legal line, "CNE Associates Private Limited · CIN U80903UP2021PTC148406 · GSTIN 09AAJCC6013D1ZY", only on legal, invoice and footer surfaces.
 - **Colour.** Ground and surface carry the page. Ink for text and the ring. Lens for the slit, links, one primary button and one highlighted number. Sand is the rare warm counterweight. Both themes are designed with equal care; every core pair passes WCAG AA and CI proves it.
 - **Type.** Hanken Grotesk for display and body, Red Hat Mono for anything measured. Scale 1.25 from 16 px. Headlines 600 or 700, tight tracking, sentence case, full stop. Body 400, never below 14 px, never justified. Mono caps with 0.08 em tracking for labels.
 - **Voice.** Precise, calm, senior. Say what was built, what it scored, what it costs. Banned: transform, unlock, empower, journey, game-changing, 10x, cutting-edge, seamless, revolutionary.
@@ -49,4 +49,4 @@ The full brand book, with the rejected directions for context, lives on the desi
 
 ## Licence
 
-Code and build scripts: MIT. Fonts: SIL Open Font License, see `fonts/*-OFL.txt`. The Lenswright and CNE Associates names, the aperture mark and the wordmark are trademarks of CNE Associates Private Limited and are not covered by the MIT licence; see `LICENSE`.
+Code and build scripts: MIT. Fonts: SIL Open Font License, see `fonts/*-OFL.txt`. The CNE Associates name, the aperture mark and the wordmark are trademarks of CNE Associates Private Limited and are not covered by the MIT licence; see `LICENSE`.

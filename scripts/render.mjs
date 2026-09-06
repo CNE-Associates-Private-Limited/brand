@@ -52,7 +52,7 @@ const Wordmark = ({ size, color }) =>
         display: "flex",
       },
     },
-    "Lenswright",
+    "CNE Associates",
   );
 
 const Byline = ({ size, color }) =>

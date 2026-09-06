@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="CNE Associates mark">
+  <rect x="12" y="12" width="116" height="116" rx="28" fill="#EEF1F4"/>
+  <path d="M 48 94 L 48 46" fill="none" stroke="#151920" stroke-width="12" stroke-linecap="round"/>
+  <path d="M 92 94 L 92 46" fill="none" stroke="#151920" stroke-width="12" stroke-linecap="round"/>
+  <path d="M 48 46 L 92 94" fill="none" stroke="#6FA0E0" stroke-width="12" stroke-linecap="round"/>
+</svg>

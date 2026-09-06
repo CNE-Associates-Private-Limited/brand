@@ -137,7 +137,7 @@ const row = (m, idx) =>
               display: "flex",
             },
           },
-          "Lenswright",
+          "CNE Associates",
         ),
       ),
     ),
@@ -178,7 +178,7 @@ const sheet = h(
       { style: { fontFamily: "Hanken Grotesk", fontWeight: 700, fontSize: 36, letterSpacing: "-0.03em", color: D.ink, display: "flex" } },
       "Mark exploration · a stronger intelligence signal",
     ),
-    label("Lenswright · round 3 · same palette, same type", "#7C8591"),
+    label("CNE Associates · round 3 · same palette, same type", "#7C8591"),
   ),
   ...marks.map(row),
 );

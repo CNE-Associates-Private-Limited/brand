@@ -1,4 +1,4 @@
-// Composes the Lenswright brand board (3 x 3, 2400 x 1800) from real assets: 3D renders, atmosphere image,
+// Composes the CNE Associates brand board (3 x 3, 2400 x 1800) from real assets: 3D renders, atmosphere image,
 // marks, tokens and type. Run after build:assets and render3d: pnpm build:board
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
@@ -85,7 +85,7 @@ const board = h(
       h(
         "div",
         { style: { fontFamily: "Hanken Grotesk", fontWeight: 700, fontSize: 20, letterSpacing: "-0.03em", color: D.ink, display: "flex" } },
-        "Lenswright",
+        "CNE Associates",
       ),
     ),
     label("Brand system · v0.2 · by CNE Associates"),
@@ -114,7 +114,7 @@ const board = h(
                 display: "flex",
               },
             },
-            "Lenswright",
+            "CNE Associates",
           ),
           label("01 · The aperture"),
         ),
@@ -233,7 +233,7 @@ const board = h(
                     display: "flex",
                   },
                 },
-                "Lenswright",
+                "CNE Associates",
               ),
             ),
             h(
@@ -389,7 +389,7 @@ const board = h(
                   display: "flex",
                 },
               },
-              "Lenswright",
+              "CNE Associates",
             ),
           ),
           h(

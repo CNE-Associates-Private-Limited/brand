@@ -1,5 +1,5 @@
 # pyright: reportMissingImports=false
-"""Renders the Lenswright aperture mark as a physical object with Blender (headless).
+"""Renders the CNE Associates aperture mark as a physical object with Blender (headless).
 
 Usage:  blender -b --python scripts/render3d.py -- <out_dir> [samples] [aperture|iris|focal]
 Output: <out_dir>/aperture-3d-front.png, aperture-3d-tilt.png, aperture-3d-hero.png (RGBA, 2048px)
@@ -8,6 +8,7 @@ Geometry follows tokens/tokens.json: ring r56 stroke 12 (outer 62, inner 50), sl
 Materials: ring = dark anodised metal (ink), slit = lit glass (lens colour). Two cameras: straight-on and tilted.
 """
 
+import collections
 import math
 import os
 import sys
@@ -17,12 +18,23 @@ import bpy
 out_dir = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else "dist/3d"
 extra = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
 samples = int(extra[1]) if len(extra) > 1 else 256
-mark_kind = extra[2] if len(extra) > 2 else "aperture"  # aperture | iris | focal
+mark_kind = (
+    extra[2] if len(extra) > 2 else "aperture"
+)  # aperture | iris | focal | aperture-c | c-stack
 os.makedirs(out_dir, exist_ok=True)
 
 INK = (0.012, 0.015, 0.02, 1.0)  # deep anodised, reads as #0E1116 under studio light
 LENS = (0.184, 0.427, 0.710, 1.0)  # #2F6DB5 in linear-ish terms
 LENS_GLOW = (0.436, 0.627, 0.878, 1.0)  # #6FA0E0
+
+# Per-mark body material: (base colour, metallic, roughness). The monograms are stroked forms with far less
+# surface than the solid ring, so they need a lighter alloy to separate from the black studio.
+_DARK_ALLOY = ((0.03, 0.036, 0.046, 1.0), 0.75, 0.38)
+_BRUSHED_STEEL = ((0.14, 0.152, 0.172, 1.0), 0.88, 0.26)
+METAL = collections.defaultdict(lambda: _DARK_ALLOY)
+METAL["aperture"] = (INK, 0.85, 0.34)
+METAL["aperture-c"] = _BRUSHED_STEEL
+METAL["c-stack"] = _BRUSHED_STEEL
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
@@ -82,9 +94,9 @@ def material(
 
 ring_mat = material(
     "ink-metal",
-    INK if mark_kind == "aperture" else (0.03, 0.036, 0.046, 1.0),
-    metallic=0.85 if mark_kind == "aperture" else 0.75,
-    roughness=0.34 if mark_kind == "aperture" else 0.38,
+    METAL[mark_kind][0],
+    metallic=METAL[mark_kind][1],
+    roughness=METAL[mark_kind][2],
 )
 slit_mat = material(
     "lens-glass",
@@ -144,8 +156,50 @@ def bar(name, size, location=(0, 0, 0), rot_z=0.0, mat=None, round_w=0.44):
     return obj
 
 
+def arc_tube(name, radius, start_deg, end_deg, thickness, mat, segments=128):
+    """A stroked arc with round caps: a poly curve swept by a circular bevel."""
+    curve = bpy.data.curves.new(name, type="CURVE")
+    curve.dimensions = "3D"
+    curve.bevel_depth = thickness / 2
+    curve.bevel_resolution = 12
+    curve.use_fill_caps = True
+    spline = curve.splines.new("POLY")
+    spline.points.add(segments - 1)
+    for i in range(segments):
+        a = math.radians(start_deg + (end_deg - start_deg) * i / (segments - 1))
+        spline.points[i].co = (radius * math.cos(a), radius * math.sin(a), 0.0, 1.0)
+    obj = bpy.data.objects.new(name, curve)
+    bpy.context.collection.objects.link(obj)
+    obj.data.materials.append(mat)
+    return obj
+
+
+def disc(name, radius, depth, mat, z=0.0):
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=128, radius=radius, depth=depth, location=(0, 0, z)
+    )
+    obj = bpy.context.active_object
+    obj.name = name
+    b = obj.modifiers.new("round", "BEVEL")
+    b.width = min(0.3, depth / 3)
+    b.segments = 10
+    obj.data.materials.append(mat)
+    smooth(obj)
+    return obj
+
+
 parts = []
-if mark_kind == "aperture":
+if mark_kind == "aperture-c":
+    # The initial as an open ring with a lit core (mark units / 10).
+    parts.append(arc_tube("c", 4.8, 42, 318, 1.6, ring_mat))
+    parts.append(disc("core", 1.3, 0.9, slit_mat))
+elif mark_kind == "c-stack":
+    # The open C holding three layers, the middle one lit.
+    parts.append(arc_tube("c", 5.2, 52, 308, 1.4, ring_mat))
+    parts.append(bar("layer-top", (4.4, 0.9, 0.8), (0, 1.05, 0), 0.0, ring_mat, 0.3))
+    parts.append(bar("layer-mid", (6.0, 0.9, 0.8), (0, 0.0, 0), 0.0, slit_mat, 0.3))
+    parts.append(bar("layer-bot", (4.4, 0.9, 0.8), (0, -1.05, 0), 0.0, ring_mat, 0.3))
+elif mark_kind == "aperture":
     parts.append(ring_object())
     parts.append(bar("slit", (7.2, 1.8, 0.9), mat=slit_mat))
 elif mark_kind == "focal":
@@ -201,6 +255,10 @@ else:
     raise SystemExit(f"unknown mark kind {mark_kind}")
 
 # Group so the whole mark can be tilted.
+for part in parts:
+    if part.type == "MESH":
+        smooth(part)
+
 bpy.ops.object.empty_add(location=(0, 0, 0))
 root = bpy.context.active_object
 root.name = "mark"
