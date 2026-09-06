@@ -35,6 +35,7 @@ METAL = collections.defaultdict(lambda: _DARK_ALLOY)
 METAL["aperture"] = (INK, 0.85, 0.34)
 METAL["aperture-c"] = _BRUSHED_STEEL
 METAL["c-stack"] = _BRUSHED_STEEL
+METAL["cne"] = _BRUSHED_STEEL
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
@@ -50,7 +51,10 @@ except Exception as exc:  # noqa: BLE001
     print("GPU setup failed, using CPU:", exc)
 scene.cycles.samples = samples
 scene.cycles.use_denoising = True
-scene.render.resolution_x = scene.render.resolution_y = 2048
+WIDE = mark_kind == "cne"
+LIGHT_S = 3.0 if WIDE else 1.0
+scene.render.resolution_x = 2560 if WIDE else 2048
+scene.render.resolution_y = 1100 if WIDE else 2048
 scene.render.resolution_percentage = 100
 scene.render.film_transparent = True
 scene.render.image_settings.file_format = "PNG"
@@ -188,8 +192,57 @@ def disc(name, radius, depth, mat, z=0.0):
     return obj
 
 
+# The CNE ligature, drawn on the same 400 x 160 grid as the Figma vectors (x 20..400, y 20..140).
+CNE_ROUTES = [
+    [(140, 20), (50, 20), (20, 50), (20, 110), (50, 140), (140, 140)],
+    [(175, 140), (175, 20), (270, 140), (270, 20)],
+    [(400, 20), (305, 20), (305, 140), (400, 140)],
+]
+CNE_ARM = [(305, 80), (375, 80)]
+
+
+def _grid(p):
+    """Grid point -> Blender units, centred, with y flipped (SVG y grows down)."""
+    return ((p[0] - 210) / 10.0, (80 - p[1]) / 10.0, 0.0)
+
+
+def poly_tube(name, points, thickness, mat, step=0.28):
+    """A rounded tube along a polyline. Straights are densified so the NURBS fit only softens the corners,
+    which is what gives the mark its buttery edge rather than a mitred point."""
+    pts = [_grid(p) for p in points]
+    dense = []
+    for i in range(len(pts) - 1):
+        a, b = pts[i], pts[i + 1]
+        seg = math.dist(a[:2], b[:2])
+        n = max(2, int(seg / step))
+        for k in range(n):
+            t = k / n
+            dense.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 0.0))
+    dense.append(pts[-1])
+
+    curve = bpy.data.curves.new(name, type="CURVE")
+    curve.dimensions = "3D"
+    curve.bevel_depth = thickness / 2
+    curve.bevel_resolution = 12
+    curve.use_fill_caps = True
+    spline = curve.splines.new("NURBS")
+    spline.points.add(len(dense) - 1)
+    for i, p in enumerate(dense):
+        spline.points[i].co = (p[0], p[1], p[2], 1.0)
+    spline.order_u = 3
+    spline.use_endpoint_u = True
+    obj = bpy.data.objects.new(name, curve)
+    bpy.context.collection.objects.link(obj)
+    obj.data.materials.append(mat)
+    return obj
+
+
 parts = []
-if mark_kind == "aperture-c":
+if mark_kind == "cne":
+    for i, route in enumerate(CNE_ROUTES):
+        parts.append(poly_tube(f"letter{i}", route, 2.2, ring_mat))
+    parts.append(poly_tube("arm", CNE_ARM, 2.2, slit_mat))
+elif mark_kind == "aperture-c":
     # The initial as an open ring with a lit core (mark units / 10).
     parts.append(arc_tube("c", 4.8, 42, 318, 1.6, ring_mat))
     parts.append(disc("core", 1.3, 0.9, slit_mat))
@@ -292,11 +345,11 @@ world.node_tree.nodes["Background"].inputs["Strength"].default_value = 1.0
 
 def softbox(name, loc, rot, scale, strength, color=(1.0, 1.0, 1.0)):
     """A long emissive strip: the classic product-shot highlight on dark metal."""
-    bpy.ops.mesh.primitive_plane_add(size=1, location=loc)
+    bpy.ops.mesh.primitive_plane_add(size=1, location=tuple(c * LIGHT_S for c in loc))
     plane = bpy.context.active_object
     plane.name = name
     plane.rotation_euler = rot
-    plane.scale = scale
+    plane.scale = tuple(v * LIGHT_S for v in scale)
     m = bpy.data.materials.new(name + "-emit")
     m.use_nodes = True
     nodes = m.node_tree.nodes
@@ -338,7 +391,7 @@ if mark_kind != "aperture":
         (0.86, 0.9, 1.0),
     )
     key.rotation_euler = (math.radians(90) - math.atan2(16, 30), 0, math.radians(-31))
-scene.view_settings.exposure = -0.6
+scene.view_settings.exposure = 0.35 if WIDE else -0.6
 
 # Compositor glow on the emissive slit.
 try:
@@ -387,6 +440,19 @@ def render(name, tilt_x=0.0, tilt_z=0.0, cam_z=0.0, cam_y=-26.0):
     print("rendered", scene.render.filepath)
 
 
-render(f"{mark_kind}-3d-front.png", cam_y=-40.0)
-render(f"{mark_kind}-3d-tilt.png", tilt_x=-22.0, tilt_z=-14.0, cam_z=3.0, cam_y=-40.0)
-render(f"{mark_kind}-3d-hero.png", tilt_x=-48.0, tilt_z=-26.0, cam_z=10.0, cam_y=-34.0)
+DIST = 142.0 if WIDE else 40.0
+render(f"{mark_kind}-3d-front.png", cam_y=-DIST)
+render(
+    f"{mark_kind}-3d-tilt.png",
+    tilt_x=-18.0,
+    tilt_z=-10.0,
+    cam_z=DIST * 0.08,
+    cam_y=-DIST,
+)
+render(
+    f"{mark_kind}-3d-hero.png",
+    tilt_x=-38.0,
+    tilt_z=-20.0,
+    cam_z=DIST * 0.26,
+    cam_y=-DIST * 0.88,
+)
