@@ -89,7 +89,7 @@ async function out(name, el, width, height, { alsoPng = false, pngWidth = width 
 mkdirSync("dist/wordmark", { recursive: true });
 mkdirSync("dist/social", { recursive: true });
 
-// Wordmark and lockups, light and dark, as SVG with glyphs as paths (no font dependency for consumers).
+// Wordmark and lockups, light and dark: SVG with glyphs as paths (no font dependency for consumers) plus a 2x PNG.
 for (const [theme, T] of [
   ["light", L],
   ["dark", D],
@@ -99,6 +99,7 @@ for (const [theme, T] of [
     h("div", { style: { display: "flex", padding: 8 } }, Wordmark({ size: 96, color: T.ink })),
     560,
     120,
+    { alsoPng: true, pngWidth: 1120 },
   );
   // The lettermark with its expansion beneath: the primary lockup wherever there is width.
   await out(
@@ -111,6 +112,7 @@ for (const [theme, T] of [
     ),
     460,
     260,
+    { alsoPng: true, pngWidth: 920 },
   );
   await out(
     `dist/wordmark/lockup-horizontal-${theme}`,
@@ -127,6 +129,7 @@ for (const [theme, T] of [
     ),
     560,
     140,
+    { alsoPng: true, pngWidth: 1120 },
   );
   await out(
     `dist/wordmark/lockup-stacked-${theme}`,
@@ -139,6 +142,7 @@ for (const [theme, T] of [
     ),
     360,
     300,
+    { alsoPng: true, pngWidth: 720 },
   );
 }
 
