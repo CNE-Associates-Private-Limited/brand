@@ -10,7 +10,7 @@
 | Class 42 trademark, India then US | not filed | |
 | Tokens v0.1 | built, contrast passes AA | 2026-09-06 |
 | Canva brand kit | not created | |
-| Figma | file `LyH3kgyj4rlD9TAXFGpNVE`, board "R3 final, exact geometry" holds the editable vectors; library not built | 2026-09-06 |
+| Figma | file `LyH3kgyj4rlD9TAXFGpNVE`: page "Brand kit" (components for logo, mark, avatar and the three lockups on both grounds; "CNE colour" variables in Light and Dark modes; four text styles), page "Marks" keeps only the R3 board; study boards deleted | 2026-09-06 |
 
 The brand is the legal entity name, so nothing is gated on a naming decision any more. "CNE" alone is allowed
 only on a surface where the full name already appears. The legal line, "CNE Associates Private Limited ·
@@ -50,3 +50,12 @@ intelligence"), open-source generation with FLUX.2 klein and potrace (references
 5), angular lettermark studies in Figma (round 6), a softened monoline (rejected as "a logo for a blog page"), a
 heavy cut lettermark, then a Recraft agent round with the same brief in which R2 independently converged on the
 heavy lettermark and Anmol chose R3. The full decision trail is in the PR history of this repo.
+
+## 2026-09-06 · Figma mirror
+
+Code stays the source of truth; Figma mirrors it so anyone designing there uses the exact assets. Page "Brand kit"
+carries components built from the same SVGs (`Logo / Light|Dark|Mono black|Mono white`, `Mark / …`, `Avatar / …`,
+`Lockup horizontal / …`, `Lockup stacked / …`, `Logo lockup / …`, the lockups as auto-layout with live text), the
+"CNE colour" variable collection (17 roles, Light and Dark modes, values from `tokens/tokens.json`) and text styles
+`Display / 48`, `Heading / 32`, `Body / 16`, `Label / 12 mono`. Exporting from Figma back into this repo would
+create a second source of truth, so it is not done: change geometry or tokens here, rebuild, then re-sync Figma.
