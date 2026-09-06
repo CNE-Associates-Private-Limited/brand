@@ -65,3 +65,15 @@ refined" board carries the recommendation, **oblique with lit seams**, at 168 / 
 Two things learned the hard way and worth not repeating: a lens bar drawn across the whole wordmark reads as a
 strikethrough, so every accent must be intersected with the letterforms; and `figma.intersect` takes the
 intersection of *all* nodes passed, so two non-overlapping stripes in one call produce an empty result.
+
+## 2026-09-06 · Recraft agent, same brief (validation round)
+
+Anmol asked for Recraft's agent to be used directly. Driven through the logged-in Studio (Chat tab, "Vector
+logo" starting point, V4.1 Vector) with the exact construction brief of the heavy lettermark. Two rounds, six
+native-SVG results, saved in `dist/explore/recraft/`. Verdict: **R2 independently converged on the hand-built
+heavy lettermark** (heavy slab, 45° cuts, fused N/E), which validates the direction from a second maker. **R6, the
+octagon seal, is not a logo but is a stronger square mark** than the C-with-core, and is the candidate for
+favicon and avatar. Both are traced output and must be redrawn as exact geometry before use. Agent session
+closed at 858 credits. Comparison: `dist/explore/recraft/compare.png`; Figma board "Recraft candidates".
+
+Open decision: adopt R6's octagon-seal construction as the square `MARK` (redrawn), keep the lettermark as `LOGO`.
