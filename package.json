@@ -35,7 +35,8 @@
     "build:board": "node scripts/board.mjs",
     "build:3d": "/Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/3d 256",
     "build:atmosphere": "bash scripts/atmosphere.sh",
-    "explore:marks": "node scripts/marks-explore.mjs && /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/explore 96 iris && /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/explore 96 focal"
+    "explore:marks": "node scripts/marks-explore.mjs && /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/explore 96 iris && /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/render3d.py -- dist/explore 96 focal",
+    "explore:logos": "scripts/logo-gen.sh && scripts/logo-gen-pass2.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
