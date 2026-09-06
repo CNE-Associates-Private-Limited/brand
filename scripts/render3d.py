@@ -1,7 +1,7 @@
 # pyright: reportMissingImports=false
 """Renders the Lenswright aperture mark as a physical object with Blender (headless).
 
-Usage:  blender -b --python scripts/render3d.py -- <out_dir> [samples]
+Usage:  blender -b --python scripts/render3d.py -- <out_dir> [samples] [aperture|iris|focal]
 Output: <out_dir>/aperture-3d-front.png, aperture-3d-tilt.png, aperture-3d-hero.png (RGBA, 2048px)
 
 Geometry follows tokens/tokens.json: ring r56 stroke 12 (outer 62, inner 50), slit 72x18, in mark units / 10.
@@ -15,7 +15,9 @@ import sys
 import bpy
 
 out_dir = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else "dist/3d"
-samples = int(sys.argv[sys.argv.index("--") + 2]) if "--" in sys.argv and len(sys.argv) > sys.argv.index("--") + 2 else 256
+extra = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
+samples = int(extra[1]) if len(extra) > 1 else 256
+mark_kind = extra[2] if len(extra) > 2 else "aperture"  # aperture | iris | focal
 os.makedirs(out_dir, exist_ok=True)
 
 INK = (0.012, 0.015, 0.02, 1.0)  # deep anodised, reads as #0E1116 under studio light
@@ -42,10 +44,28 @@ scene.render.film_transparent = True
 scene.render.image_settings.file_format = "PNG"
 scene.render.image_settings.color_mode = "RGBA"
 scene.render.image_settings.color_depth = "16"
-scene.view_settings.view_transform = "Filmic" if "Filmic" in [i.name for i in bpy.types.ColorManagedViewSettings.bl_rna.properties["view_transform"].enum_items] else "AgX"
+scene.view_settings.view_transform = (
+    "Filmic"
+    if "Filmic"
+    in [
+        i.name
+        for i in bpy.types.ColorManagedViewSettings.bl_rna.properties[
+            "view_transform"
+        ].enum_items
+    ]
+    else "AgX"
+)
 
 
-def material(name, base, metallic=0.0, roughness=0.4, emission=None, emission_strength=0.0, transmission=0.0):
+def material(
+    name,
+    base,
+    metallic=0.0,
+    roughness=0.4,
+    emission=None,
+    emission_strength=0.0,
+    transmission=0.0,
+):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     bsdf = m.node_tree.nodes["Principled BSDF"]
@@ -60,48 +80,133 @@ def material(name, base, metallic=0.0, roughness=0.4, emission=None, emission_st
     return m
 
 
-ring_mat = material("ink-metal", INK, metallic=0.85, roughness=0.34)
-slit_mat = material("lens-glass", (0.05, 0.14, 0.34, 1.0), metallic=0.0, roughness=0.05, emission=LENS, emission_strength=1.1, transmission=0.05)
+ring_mat = material(
+    "ink-metal",
+    INK if mark_kind == "aperture" else (0.03, 0.036, 0.046, 1.0),
+    metallic=0.85 if mark_kind == "aperture" else 0.75,
+    roughness=0.34 if mark_kind == "aperture" else 0.38,
+)
+slit_mat = material(
+    "lens-glass",
+    (0.05, 0.14, 0.34, 1.0),
+    metallic=0.0,
+    roughness=0.05,
+    emission=LENS,
+    emission_strength=1.1,
+    transmission=0.05,
+)
 
-# Ring: outer cylinder minus inner cylinder, then bevel for a machined edge.
-bpy.ops.mesh.primitive_cylinder_add(vertices=256, radius=6.2, depth=1.2, location=(0, 0, 0))
-ring = bpy.context.active_object
-ring.name = "ring"
-bpy.ops.mesh.primitive_cylinder_add(vertices=256, radius=5.0, depth=2.0, location=(0, 0, 0))
-inner = bpy.context.active_object
-inner.name = "inner"
-boolean = ring.modifiers.new("cut", "BOOLEAN")
-boolean.operation = "DIFFERENCE"
-boolean.object = inner
-bpy.context.view_layer.objects.active = ring
-bpy.ops.object.modifier_apply(modifier="cut")
-bpy.data.objects.remove(inner, do_unlink=True)
-bevel = ring.modifiers.new("bevel", "BEVEL")
-bevel.width = 0.34
-bevel.segments = 10
-ring.data.materials.append(ring_mat)
-for poly in ring.data.polygons:
-    poly.use_smooth = True
 
-# Slit: rounded bar 7.2 x 1.8 x 0.9, fully rounded ends via bevel.
-bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0))
-slit = bpy.context.active_object
-slit.name = "slit"
-slit.scale = (7.2, 1.8, 0.9)
-bpy.ops.object.transform_apply(scale=True)
-sb = slit.modifiers.new("round", "BEVEL")
-sb.width = 0.44
-sb.segments = 12
-slit.data.materials.append(slit_mat)
-for poly in slit.data.polygons:
-    poly.use_smooth = True
+def smooth(obj):
+    for poly in obj.data.polygons:
+        poly.use_smooth = True
+
+
+def ring_object(outer=6.2, inner_r=5.0, depth=1.2):
+    """Outer cylinder minus inner cylinder, then a bevel for a machined edge."""
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=256, radius=outer, depth=depth, location=(0, 0, 0)
+    )
+    ring = bpy.context.active_object
+    ring.name = "ring"
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=256, radius=inner_r, depth=depth + 1, location=(0, 0, 0)
+    )
+    inner = bpy.context.active_object
+    boolean = ring.modifiers.new("cut", "BOOLEAN")
+    boolean.operation = "DIFFERENCE"
+    boolean.object = inner
+    bpy.context.view_layer.objects.active = ring
+    bpy.ops.object.modifier_apply(modifier="cut")
+    bpy.data.objects.remove(inner, do_unlink=True)
+    bevel = ring.modifiers.new("bevel", "BEVEL")
+    bevel.width = 0.34
+    bevel.segments = 10
+    ring.data.materials.append(ring_mat)
+    smooth(ring)
+    return ring
+
+
+def bar(name, size, location=(0, 0, 0), rot_z=0.0, mat=None, round_w=0.44):
+    """A rounded bar: cube scaled to size with a heavy bevel, so the ends and edges read as machined."""
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0))
+    obj = bpy.context.active_object
+    obj.name = name
+    obj.scale = size
+    bpy.ops.object.transform_apply(scale=True)
+    obj.location = location
+    obj.rotation_euler = (0, 0, rot_z)
+    b = obj.modifiers.new("round", "BEVEL")
+    b.width = round_w
+    b.segments = 12
+    obj.data.materials.append(mat or ring_mat)
+    smooth(obj)
+    return obj
+
+
+parts = []
+if mark_kind == "aperture":
+    parts.append(ring_object())
+    parts.append(bar("slit", (7.2, 1.8, 0.9), mat=slit_mat))
+elif mark_kind == "focal":
+    parts.append(ring_object())
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=128, radius=1.7, depth=0.9, location=(0, 0, 0)
+    )
+    core = bpy.context.active_object
+    core.name = "core"
+    cb = core.modifiers.new("round", "BEVEL")
+    cb.width = 0.3
+    cb.segments = 10
+    core.data.materials.append(slit_mat)
+    smooth(core)
+    parts.append(core)
+elif mark_kind == "iris":
+    # Six blades: each side of a hexagon (r 3.0) extended 3.4 past one vertex, matching the SVG.
+    inner_r = 3.0
+    for i in range(6):
+        a1 = math.radians(i * 60 - 90)
+        a2 = math.radians(i * 60 - 30)
+        x1, y1 = inner_r * math.cos(a1), inner_r * math.sin(a1)
+        x2, y2 = inner_r * math.cos(a2), inner_r * math.sin(a2)
+        dx, dy = x2 - x1, y2 - y1
+        ln = math.hypot(dx, dy)
+        xe, ye = x2 + dx / ln * 3.4, y2 + dy / ln * 3.4
+        length = math.hypot(xe - x1, ye - y1)
+        mid = ((x1 + xe) / 2, (y1 + ye) / 2, 0)
+        parts.append(
+            bar(
+                f"blade{i}",
+                (length + 0.4, 1.1, 0.8),
+                mid,
+                math.atan2(ye - y1, xe - x1),
+                ring_mat,
+                0.36,
+            )
+        )
+    # The lit opening: a hexagonal glass plate set slightly behind the blades.
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=6, radius=2.45, depth=0.5, location=(0, 0, -0.45)
+    )
+    plate = bpy.context.active_object
+    plate.name = "opening"
+    plate.rotation_euler = (0, 0, math.radians(-90 + 30))
+    pb = plate.modifiers.new("round", "BEVEL")
+    pb.width = 0.12
+    pb.segments = 6
+    plate.data.materials.append(slit_mat)
+    smooth(plate)
+    parts.append(plate)
+else:
+    raise SystemExit(f"unknown mark kind {mark_kind}")
 
 # Group so the whole mark can be tilted.
 bpy.ops.object.empty_add(location=(0, 0, 0))
 root = bpy.context.active_object
 root.name = "mark"
-ring.parent = root
-slit.parent = root
+for part in parts:
+    part.parent = root
+
 
 # Lighting: soft key from upper left, cool rim from behind right, large top fill.
 def area(name, loc, rot, energy, size, color=(1, 1, 1)):
@@ -118,7 +223,12 @@ def area(name, loc, rot, energy, size, color=(1, 1, 1)):
 world = bpy.data.worlds.new("world")
 scene.world = world
 world.use_nodes = True
-world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.004, 0.005, 0.007, 1)
+world.node_tree.nodes["Background"].inputs["Color"].default_value = (
+    0.004,
+    0.005,
+    0.007,
+    1,
+)
 world.node_tree.nodes["Background"].inputs["Strength"].default_value = 1.0
 
 
@@ -144,8 +254,32 @@ def softbox(name, loc, rot, scale, strength, color=(1.0, 1.0, 1.0)):
 
 
 softbox("strip-top", (0, -8, 18), (math.radians(25), 0, 0), (24, 1.1, 1), 4.5)
-softbox("strip-left", (-20, -10, 4), (math.radians(90), 0, math.radians(-60)), (1.4, 22, 1), 2.6)
-softbox("strip-right", (20, 4, 6), (math.radians(90), 0, math.radians(60)), (1.2, 20, 1), 2.4, (0.75, 0.85, 1.0))
+softbox(
+    "strip-left",
+    (-20, -10, 4),
+    (math.radians(90), 0, math.radians(-60)),
+    (1.4, 22, 1),
+    2.6,
+)
+softbox(
+    "strip-right",
+    (20, 4, 6),
+    (math.radians(90), 0, math.radians(60)),
+    (1.2, 20, 1),
+    2.4,
+    (0.75, 0.85, 1.0),
+)
+# Flat-faced marks need a large soft key from upper front-left, or their faces only reflect the black studio.
+if mark_kind != "aperture":
+    key = softbox(
+        "key-front",
+        (-18, -30, 16),
+        (math.radians(62), 0, math.radians(-30)),
+        (34, 34, 1),
+        0.9,
+        (0.86, 0.9, 1.0),
+    )
+    key.rotation_euler = (math.radians(90) - math.atan2(16, 30), 0, math.radians(-31))
 scene.view_settings.exposure = -0.6
 
 # Compositor glow on the emissive slit.
@@ -160,7 +294,12 @@ try:
         glare.glare_type = "BLOOM"
     except Exception:  # noqa: BLE001
         glare.glare_type = "FOG_GLOW"
-    for attr, val in (("threshold", 1.2), ("mix", 0.0), ("size", 7), ("strength", 0.35)):
+    for attr, val in (
+        ("threshold", 1.2),
+        ("mix", 0.0),
+        ("size", 7),
+        ("strength", 0.35),
+    ):
         if hasattr(glare, attr):
             setattr(glare, attr, val)
     comp = tree.nodes.new("CompositorNodeComposite")
@@ -178,7 +317,11 @@ scene.camera = cam
 
 
 def render(name, tilt_x=0.0, tilt_z=0.0, cam_z=0.0, cam_y=-26.0):
-    root.rotation_euler = (math.radians(90 + tilt_x), 0, math.radians(tilt_z))  # ring faces the camera at tilt 0
+    root.rotation_euler = (
+        math.radians(90 + tilt_x),
+        0,
+        math.radians(tilt_z),
+    )  # ring faces the camera at tilt 0
     cam.location = (0, cam_y, cam_z)
     cam.rotation_euler = (math.radians(90) - math.atan2(cam_z, -cam_y), 0, 0)
     scene.render.filepath = os.path.join(out_dir, name)
@@ -186,6 +329,6 @@ def render(name, tilt_x=0.0, tilt_z=0.0, cam_z=0.0, cam_y=-26.0):
     print("rendered", scene.render.filepath)
 
 
-render("aperture-3d-front.png", cam_y=-40.0)
-render("aperture-3d-tilt.png", tilt_x=-22.0, tilt_z=-14.0, cam_z=3.0, cam_y=-40.0)
-render("aperture-3d-hero.png", tilt_x=-48.0, tilt_z=-26.0, cam_z=10.0, cam_y=-34.0)
+render(f"{mark_kind}-3d-front.png", cam_y=-40.0)
+render(f"{mark_kind}-3d-tilt.png", tilt_x=-22.0, tilt_z=-14.0, cam_z=3.0, cam_y=-40.0)
+render(f"{mark_kind}-3d-hero.png", tilt_x=-48.0, tilt_z=-26.0, cam_z=10.0, cam_y=-34.0)
