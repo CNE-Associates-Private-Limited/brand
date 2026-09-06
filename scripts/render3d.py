@@ -36,6 +36,7 @@ METAL["aperture"] = (INK, 0.85, 0.34)
 METAL["aperture-c"] = _BRUSHED_STEEL
 METAL["c-stack"] = _BRUSHED_STEEL
 METAL["cne"] = _BRUSHED_STEEL
+METAL["mark-c"] = _BRUSHED_STEEL
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
@@ -206,15 +207,39 @@ def _grid(p):
     return ((p[0] - 210) / 10.0, (80 - p[1]) / 10.0, 0.0)
 
 
-def poly_tube(name, points, thickness, mat, step=0.28):
-    """A rounded tube along a polyline. Straights are densified so the NURBS fit only softens the corners,
-    which is what gives the mark its buttery edge rather than a mitred point."""
-    pts = [_grid(p) for p in points]
+def rounded_profile(name, half_w, half_h, r, seg=8):
+    """A rounded rectangle used as the sweep profile: a flat plate with softened edges rather than a round tube."""
+    pts = []
+    for cx, cy, a0, a1 in (
+        (half_w - r, half_h - r, 0, 90),
+        (-(half_w - r), half_h - r, 90, 180),
+        (-(half_w - r), -(half_h - r), 180, 270),
+        (half_w - r, -(half_h - r), 270, 360),
+    ):
+        for i in range(seg + 1):
+            a = math.radians(a0 + (a1 - a0) * i / seg)
+            pts.append((cx + r * math.cos(a), cy + r * math.sin(a), 0.0))
+    curve = bpy.data.curves.new(name, type="CURVE")
+    curve.dimensions = "2D"
+    spline = curve.splines.new("POLY")
+    spline.points.add(len(pts) - 1)
+    for i, pt in enumerate(pts):
+        spline.points[i].co = (pt[0], pt[1], pt[2], 1.0)
+    spline.use_cyclic_u = True
+    obj = bpy.data.objects.new(name, curve)
+    bpy.context.collection.objects.link(obj)
+    obj.hide_render = True
+    return obj
+
+
+def poly_solid(name, points, centre, stroke, mat, profile, step=0.28):
+    """Sweep the plate profile along a polyline. Straights are densified so the NURBS fit softens only the
+    corners, which is what makes the angular cut read as smooth rather than sharp."""
+    pts = [((p[0] - centre[0]) / 10.0, (centre[1] - p[1]) / 10.0, 0.0) for p in points]
     dense = []
     for i in range(len(pts) - 1):
         a, b = pts[i], pts[i + 1]
-        seg = math.dist(a[:2], b[:2])
-        n = max(2, int(seg / step))
+        n = max(2, int(math.dist(a[:2], b[:2]) / step))
         for k in range(n):
             t = k / n
             dense.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 0.0))
@@ -222,13 +247,13 @@ def poly_tube(name, points, thickness, mat, step=0.28):
 
     curve = bpy.data.curves.new(name, type="CURVE")
     curve.dimensions = "3D"
-    curve.bevel_depth = thickness / 2
-    curve.bevel_resolution = 12
+    curve.bevel_mode = "OBJECT"
+    curve.bevel_object = profile
     curve.use_fill_caps = True
     spline = curve.splines.new("NURBS")
     spline.points.add(len(dense) - 1)
-    for i, p in enumerate(dense):
-        spline.points[i].co = (p[0], p[1], p[2], 1.0)
+    for i, pt in enumerate(dense):
+        spline.points[i].co = (pt[0], pt[1], pt[2], 1.0)
     spline.order_u = 3
     spline.use_endpoint_u = True
     obj = bpy.data.objects.new(name, curve)
@@ -237,11 +262,21 @@ def poly_tube(name, points, thickness, mat, step=0.28):
     return obj
 
 
+# The square mark: the chamfered C with a lit core, on the 140 grid.
+MARK_C = [(116, 24), (48, 24), (24, 48), (24, 92), (48, 116), (116, 116)]
+
 parts = []
 if mark_kind == "cne":
+    prof = rounded_profile("plate", 1.1, 0.45, 0.3)
     for i, route in enumerate(CNE_ROUTES):
-        parts.append(poly_tube(f"letter{i}", route, 2.2, ring_mat))
-    parts.append(poly_tube("arm", CNE_ARM, 2.2, slit_mat))
+        parts.append(poly_solid(f"letter{i}", route, (210, 80), 2.2, ring_mat, prof))
+    parts.append(poly_solid("arm", CNE_ARM, (210, 80), 2.2, slit_mat, prof))
+elif mark_kind == "mark-c":
+    prof = rounded_profile("plate", 1.0, 0.45, 0.28)
+    parts.append(poly_solid("c", MARK_C, (70, 70), 2.0, ring_mat, prof))
+    core = disc("core", 1.0, 0.9, slit_mat)
+    core.location = (0.8, 0.0, 0.0)
+    parts.append(core)
 elif mark_kind == "aperture-c":
     # The initial as an open ring with a lit core (mark units / 10).
     parts.append(arc_tube("c", 4.8, 42, 318, 1.6, ring_mat))

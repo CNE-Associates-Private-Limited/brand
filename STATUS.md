@@ -5,7 +5,8 @@
 | Brand name | **CNE Associates** (the legal name; no studio name) | 2026-09-06 |
 | Studio name "Lenswright" | **retired**, rejected by the founder | 2026-09-06 |
 | Class 42 trademark, India then US | not filed | |
-| Mark | monogram candidates open, see below | 2026-09-06 |
+| Mark | **decided: the softened CNE lettermark** | 2026-09-06 |
+| Expansion | "Capability, Not Experiments" | 2026-09-06 |
 | Tokens v0.1 | built, contrast passes AA | 2026-09-06 |
 | Canva brand kit | not created | |
 | Figma library | file created (Lenswright brand, to rename), library not built | 2026-09-06 |
@@ -29,7 +30,22 @@ Anmol likes the dimensional direction but the aperture mark reads "lens", not "i
 
 Open-source generation route (2026-09-06): `pnpm explore:logos` generates 40 candidates locally with FLUX.2 [klein] 4B via mflux from palette-driven prompts (`scripts/logo-gen.sh`, `scripts/logo-gen-pass2.sh`); `scripts/trace-logo.sh` traces a pick to a two-colour SVG with potrace. Top eight ranked in `dist/explore/generated-top8.png`. Any generated mark chosen must be redrawn by hand as clean geometry in `marks/` before use; the trace is a reference, not the asset.
 
-## 2026-09-06 · Mark, round 6: CNE lettermark in Figma (open)
+## 2026-09-06 · Mark: DECIDED
+
+The softened CNE lettermark is the mark. Two forms from one construction, both in `scripts/mark-geometry.mjs`:
+the wide `LOGO` (420 x 160, stroke 22) and the square `MARK`, the chamfered C with a lens core (140, stroke 20).
+Every turn is 45 or 90 degrees; every join and cap is round, which is what makes the angular cut read as smooth.
+`marks/` is regenerated with `pnpm build:marks`, and `render.mjs` and `board.mjs` now import the same geometry, so
+the mark can only ever change in one place. 3D is a solid plate sweep (`render3d.py` kinds `cne` and `mark-c`),
+not a round tube.
+
+Two traps found and worth not repeating: a horizontal bar inside the square C reads as a euro sign, so the accent
+there is a dot; and a coloured bar drawn across the whole wordmark reads as a strikethrough.
+
+Open: the plate sweep still pinches slightly at the sharpest corners, and the wordmark lockup with
+"Capability, Not Experiments" is not drawn yet.
+
+## 2026-09-06 · Mark, round 6: CNE lettermark in Figma (superseded by the decision above)
 
 Anmol asked to try the lettermark route: "CNE" written with angular twists rather than a symbol. Built as live
 vectors in the Figma file (LyH3kgyj4rlD9TAXFGpNVE, page "Marks"), set in Space Grotesk Bold, flattened, then cut

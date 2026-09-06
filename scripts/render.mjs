@@ -5,15 +5,16 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
 import sharp from "sharp";
+import { elements, LOGO, MARK } from "./mark-geometry.mjs";
 
 async function dataUri(path, width) {
   if (!existsSync(path)) return null;
   const buf = await sharp(path).trim().resize({ width, withoutEnlargement: true }).png().toBuffer();
   return `data:image/png;base64,${buf.toString("base64")}`;
 }
-const front3d = await dataUri("dist/3d/aperture-3d-front.png", 900);
-const hero3d = await dataUri("dist/3d/aperture-3d-hero.png", 1000);
-const tilt3d = await dataUri("dist/3d/aperture-3d-tilt.png", 900);
+const front3d = await dataUri("dist/3d/mark-c-3d-front.png", 900);
+const hero3d = await dataUri("dist/3d/cne-3d-hero.png", 1000);
+const tilt3d = await dataUri("dist/3d/mark-c-3d-tilt.png", 900);
 const Img = (src, w, hgt, extra = {}) => h("img", { src, width: w, height: hgt, style: { width: w, height: hgt, ...extra } });
 
 const tokens = JSON.parse(readFileSync("tokens/tokens.json", "utf8"));
@@ -30,13 +31,12 @@ const fonts = [
 const h = (type, props = {}, ...children) => ({ type, props: { ...props, children: children.length === 1 ? children[0] : children } });
 
 // The aperture mark as a satori-compatible SVG element.
-const Mark = ({ size, ring, slit }) =>
-  h(
-    "svg",
-    { width: size, height: size, viewBox: "0 0 140 140" },
-    h("circle", { cx: 70, cy: 70, r: 56, fill: "none", stroke: ring, strokeWidth: 12 }),
-    h("rect", { x: 34, y: 61, width: 72, height: 18, rx: 9, fill: slit }),
-  );
+// The square C, from the shared geometry so the mark can only ever change in one place.
+const Mark = ({ size, ring, slit }) => h("svg", { width: size, height: size, viewBox: MARK.viewBox }, ...elements(MARK, h, ring, slit));
+
+// The wide CNE lettermark.
+const Logo = ({ width, ink, accent }) =>
+  h("svg", { width, height: Math.round((width * LOGO.height) / LOGO.width), viewBox: LOGO.viewBox }, ...elements(LOGO, h, ink, accent));
 
 const Wordmark = ({ size, color }) =>
   h(

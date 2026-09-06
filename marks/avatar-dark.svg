@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="CNE Associates mark">
-  <rect width="140" height="140" fill="#0A0D11"/>
-  <circle cx="70" cy="70" r="56" fill="none" stroke="#EEF1F4" stroke-width="12"/>
-  <rect x="34" y="61" width="72" height="18" rx="9" fill="#6FA0E0"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="CNE Associates">
+  <circle cx="70" cy="70" r="70" fill="#0A0D11"/>
+  <path d="M 116 24 L 48 24 L 24 48 L 24 92 L 48 116 L 116 116" fill="none" stroke="#EEF1F4" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 78 70 L 78 70" fill="none" stroke="#6FA0E0" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
 import sharp from "sharp";
+import { elements, LOGO, MARK } from "./mark-geometry.mjs";
 
 const tokens = JSON.parse(readFileSync("tokens/tokens.json", "utf8"));
 const L = Object.fromEntries(Object.entries(tokens.color.light).map(([k, v]) => [k, v.$value]));
@@ -26,13 +27,12 @@ async function dataUri(path, width) {
   return `data:image/png;base64,${buf.toString("base64")}`;
 }
 
-const Mark = ({ size, ring, slit }) =>
-  h(
-    "svg",
-    { width: size, height: size, viewBox: "0 0 140 140" },
-    h("circle", { cx: 70, cy: 70, r: 56, fill: "none", stroke: ring, strokeWidth: 12 }),
-    h("rect", { x: 34, y: 61, width: 72, height: 18, rx: 9, fill: slit }),
-  );
+// The square C, from the shared geometry so the mark can only ever change in one place.
+const Mark = ({ size, ring, slit }) => h("svg", { width: size, height: size, viewBox: MARK.viewBox }, ...elements(MARK, h, ring, slit));
+
+// The wide CNE lettermark.
+const Logo = ({ width, ink, accent }) =>
+  h("svg", { width, height: Math.round((width * LOGO.height) / LOGO.width), viewBox: LOGO.viewBox }, ...elements(LOGO, h, ink, accent));
 const label = (text) =>
   h(
     "div",
@@ -67,8 +67,8 @@ const panel = (children, extra = {}) =>
     ...children,
   );
 
-const tilt = await dataUri("dist/3d/aperture-3d-tilt.png", 900);
-const hero3d = await dataUri("dist/3d/aperture-3d-hero.png", 1000);
+const tilt = await dataUri("dist/3d/mark-c-3d-tilt.png", 900);
+const hero3d = await dataUri("dist/3d/cne-3d-hero.png", 1000);
 const atmosphere = await dataUri("dist/atmosphere/light-through-slit.png", 1100);
 
 const board = h(
