@@ -9,6 +9,7 @@ Materials: ring = dark anodised metal (ink), slit = lit glass (lens colour). Two
 """
 
 import collections
+import json
 import math
 import os
 import sys
@@ -193,34 +194,28 @@ def disc(name, radius, depth, mat, z=0.0):
     return obj
 
 
-# The CNE ligature, drawn on the same 400 x 160 grid as the Figma vectors (x 20..400, y 20..140).
-CNE_ROUTES = [
-    [(140, 20), (50, 20), (20, 50), (20, 110), (50, 140), (140, 140)],
-    [(175, 140), (175, 20), (270, 140), (270, 20)],
-    [(400, 20), (305, 20), (305, 140), (400, 140)],
-]
-CNE_ARM = [(305, 80), (375, 80)]
+# Mark geometry comes from dist/mark-polygons.json, written by scripts/marks.mjs from mark-geometry.mjs,
+# so this file never carries its own copy of the letterforms. Grid is 0..320 x 0..100 for the logo, 0..140 for
+# the square mark; one grid unit is 0.1 Blender units.
+
+with open(
+    os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "dist", "mark-polygons.json"
+    )
+) as fh:
+    POLY = json.load(fh)
 
 
-def _grid(p):
-    """Grid point -> Blender units, centred, with y flipped (SVG y grows down)."""
-    return ((p[0] - 210) / 10.0, (80 - p[1]) / 10.0, 0.0)
-
-
-def rounded_profile(name, half_w, half_h, r, seg=8):
-    """A rounded rectangle used as the sweep profile: a flat plate with softened edges rather than a round tube."""
-    pts = []
-    for cx, cy, a0, a1 in (
-        (half_w - r, half_h - r, 0, 90),
-        (-(half_w - r), half_h - r, 90, 180),
-        (-(half_w - r), -(half_h - r), 180, 270),
-        (half_w - r, -(half_h - r), 270, 360),
-    ):
-        for i in range(seg + 1):
-            a = math.radians(a0 + (a1 - a0) * i / seg)
-            pts.append((cx + r * math.cos(a), cy + r * math.sin(a), 0.0))
+def extruded(name, points, centre, mat, depth=0.9, edge=0.12):
+    """A filled polygon extruded into a plate with a rounded edge: solid, not a tube."""
+    pts = [((p[0] - centre[0]) / 10.0, (centre[1] - p[1]) / 10.0, 0.0) for p in points]
     curve = bpy.data.curves.new(name, type="CURVE")
     curve.dimensions = "2D"
+    curve.fill_mode = "BOTH"
+    curve.extrude = depth / 2
+    curve.bevel_depth = edge
+    curve.bevel_resolution = 6
+    curve.resolution_u = 1
     spline = curve.splines.new("POLY")
     spline.points.add(len(pts) - 1)
     for i, pt in enumerate(pts):
@@ -228,54 +223,24 @@ def rounded_profile(name, half_w, half_h, r, seg=8):
     spline.use_cyclic_u = True
     obj = bpy.data.objects.new(name, curve)
     bpy.context.collection.objects.link(obj)
-    obj.hide_render = True
-    return obj
-
-
-def poly_solid(name, points, centre, stroke, mat, profile, step=0.28):
-    """Sweep the plate profile along a polyline. Straights are densified so the NURBS fit softens only the
-    corners, which is what makes the angular cut read as smooth rather than sharp."""
-    pts = [((p[0] - centre[0]) / 10.0, (centre[1] - p[1]) / 10.0, 0.0) for p in points]
-    dense = []
-    for i in range(len(pts) - 1):
-        a, b = pts[i], pts[i + 1]
-        n = max(2, int(math.dist(a[:2], b[:2]) / step))
-        for k in range(n):
-            t = k / n
-            dense.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 0.0))
-    dense.append(pts[-1])
-
-    curve = bpy.data.curves.new(name, type="CURVE")
-    curve.dimensions = "3D"
-    curve.bevel_mode = "OBJECT"
-    curve.bevel_object = profile
-    curve.use_fill_caps = True
-    spline = curve.splines.new("NURBS")
-    spline.points.add(len(dense) - 1)
-    for i, pt in enumerate(dense):
-        spline.points[i].co = (pt[0], pt[1], pt[2], 1.0)
-    spline.order_u = 3
-    spline.use_endpoint_u = True
-    obj = bpy.data.objects.new(name, curve)
-    bpy.context.collection.objects.link(obj)
     obj.data.materials.append(mat)
     return obj
 
 
-# The square mark: the chamfered C with a lit core, on the 140 grid.
-MARK_C = [(116, 24), (48, 24), (24, 48), (24, 92), (48, 116), (116, 116)]
-
 parts = []
 if mark_kind == "cne":
-    prof = rounded_profile("plate", 1.1, 0.45, 0.3)
-    for i, route in enumerate(CNE_ROUTES):
-        parts.append(poly_solid(f"letter{i}", route, (210, 80), 2.2, ring_mat, prof))
-    parts.append(poly_solid("arm", CNE_ARM, (210, 80), 2.2, slit_mat, prof))
+    centre = (160, 50)
+    parts.append(extruded("c", POLY["C"], centre, ring_mat))
+    parts.append(extruded("ne", POLY["NE"], centre, ring_mat))
+    parts.append(extruded("arm", POLY["ARM"], centre, slit_mat, depth=1.0))
 elif mark_kind == "mark-c":
-    prof = rounded_profile("plate", 1.0, 0.45, 0.28)
-    parts.append(poly_solid("c", MARK_C, (70, 70), 2.0, ring_mat, prof))
-    core = disc("core", 1.0, 0.9, slit_mat)
-    core.location = (0.8, 0.0, 0.0)
+    ox, oy = POLY["MARK_C_OFFSET"]
+    parts.append(
+        extruded("c", [[x + ox, y + oy] for x, y in POLY["C"]], (70, 70), ring_mat)
+    )
+    d = POLY["MARK_DOT"]
+    core = disc("core", d["r"] / 10.0, 1.0, slit_mat)
+    core.location = ((d["cx"] - 70) / 10.0, (70 - d["cy"]) / 10.0, 0.0)
     parts.append(core)
 elif mark_kind == "aperture-c":
     # The initial as an open ring with a lit core (mark units / 10).
@@ -475,7 +440,7 @@ def render(name, tilt_x=0.0, tilt_z=0.0, cam_z=0.0, cam_y=-26.0):
     print("rendered", scene.render.filepath)
 
 
-DIST = 142.0 if WIDE else 40.0
+DIST = 126.0 if WIDE else 40.0
 render(f"{mark_kind}-3d-front.png", cam_y=-DIST)
 render(
     f"{mark_kind}-3d-tilt.png",

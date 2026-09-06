@@ -1,7 +1,7 @@
 // Writes every mark file in marks/ from the shared geometry. Run: node scripts/marks.mjs
 // marks/ is committed art, not dist: it changes only by a brand decision recorded in STATUS.md.
-import { readFileSync, writeFileSync } from "node:fs";
-import { LOGO, MARK, toSvg } from "./mark-geometry.mjs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { LOGO, MARK, POLYGONS, toSvg } from "./mark-geometry.mjs";
 
 const tokens = JSON.parse(readFileSync("tokens/tokens.json", "utf8"));
 const L = Object.fromEntries(Object.entries(tokens.color.light).map(([k, v]) => [k, v.$value]));
@@ -39,4 +39,7 @@ const avatar = (bg, ink, accent) => {
 writeFileSync("marks/avatar-dark.svg", avatar(D.ground, D.ink, D.lens));
 writeFileSync("marks/avatar-light.svg", avatar(L.ground, L.ink, L.lens));
 
-console.log("wrote", files.length + 3, "mark files");
+// Raw points for the Blender pipeline, so render3d.py never carries its own copy of the geometry.
+mkdirSync("dist", { recursive: true });
+writeFileSync("dist/mark-polygons.json", `${JSON.stringify(POLYGONS, null, 2)}\n`);
+console.log("wrote", files.length + 3, "mark files and dist/mark-polygons.json");

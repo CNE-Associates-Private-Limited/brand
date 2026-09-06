@@ -1,4 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="CNE Associates">
-  <path d="M 116 24 L 48 24 L 24 48 L 24 92 L 48 116 L 116 116" fill="none" stroke="#0E1116" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M 78 70 L 78 70" fill="none" stroke="#0E1116" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 96 20 L 42 20 L 18 44 L 18 96 L 42 120 L 96 120 L 122 94 L 53 94 L 44 85 L 44 55 L 53 46 L 122 46 Z" fill="#0E1116"/>
+  <path d="M 103 70 A 13 13 0 1 0 77 70 A 13 13 0 1 0 103 70 Z" fill="#0E1116"/>
 </svg>

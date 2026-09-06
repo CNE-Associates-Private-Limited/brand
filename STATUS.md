@@ -5,7 +5,7 @@
 | Brand name | **CNE Associates** (the legal name; no studio name) | 2026-09-06 |
 | Studio name "Lenswright" | **retired**, rejected by the founder | 2026-09-06 |
 | Class 42 trademark, India then US | not filed | |
-| Mark | **decided: the softened CNE lettermark** | 2026-09-06 |
+| Mark | **decided: the heavy CNE lettermark** (superseded the softened monoline the same day) | 2026-09-06 |
 | Expansion | "Capability, Not Experiments" | 2026-09-06 |
 | Tokens v0.1 | built, contrast passes AA | 2026-09-06 |
 | Canva brand kit | not created | |
@@ -30,7 +30,16 @@ Anmol likes the dimensional direction but the aperture mark reads "lens", not "i
 
 Open-source generation route (2026-09-06): `pnpm explore:logos` generates 40 candidates locally with FLUX.2 [klein] 4B via mflux from palette-driven prompts (`scripts/logo-gen.sh`, `scripts/logo-gen-pass2.sh`); `scripts/trace-logo.sh` traces a pick to a two-colour SVG with potrace. Top eight ranked in `dist/explore/generated-top8.png`. Any generated mark chosen must be redrawn by hand as clean geometry in `marks/` before use; the trace is a reference, not the asset.
 
-## 2026-09-06 · Mark: DECIDED
+## 2026-09-06 · Mark: DECIDED (heavy)
+
+Anmol rejected the softened monoline as "a logo for a blog or documentation page". Correct: monoline with round
+caps is the default look of developer docs, and a stroke has no mass. Replaced the same day with heavy solid cut
+letterforms: cap 100, stem 26, every outer corner and terminal at 45 degrees, N and E fused on one stem. The NE
+outline is traced as a single polygon (the two notches are the N's counters) so the SVG is one path and the 3D
+extrusion has no overlapping faces. 3D is now a true extruded plate (`extruded()` in render3d.py, 2D curve with
+fill, extrude and bevel), fed from `dist/mark-polygons.json` so Blender never carries its own copy.
+
+## 2026-09-06 · Mark: first decision, softened monoline (superseded above)
 
 The softened CNE lettermark is the mark. Two forms from one construction, both in `scripts/mark-geometry.mjs`:
 the wide `LOGO` (420 x 160, stroke 22) and the square `MARK`, the chamfered C with a lens core (140, stroke 20).
