@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 120" width="340" height="120" role="img" aria-label="CNE Associates">
-  <path d="M 88 10 L 34 10 L 10 34 L 10 86 L 34 110 L 88 110 L 114 84 L 45 84 L 36 75 L 36 45 L 45 36 L 114 36 Z" fill="#0E1116"/>
-  <path d="M 134 10 L 170 10 L 210 70.6 L 210 10 L 304 10 L 330 36 L 236 36 L 236 84 L 330 84 L 304 110 L 200 110 L 160 49.4 L 160 110 L 148 110 L 134 96 Z" fill="#0E1116"/>
-  <path d="M 210 47 L 284 47 L 310 73 L 210 73 Z" fill="#2F6DB5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 262 120" width="262" height="120" role="img" aria-label="CNE Associates">
+  <path d="M 112 10 L 60 10 A 50 50 0 0 0 60 110 L 112 110 L 90 88 L 60 88 A 28 28 0 0 1 60 32 L 90 32 Z" fill="#0E1116"/>
+  <path d="M 169 10 L 252 10 L 230 32 L 191 32 L 191 88 L 252 88 L 230 110 L 169 110 L 169 103.3 L 120 50.6 L 120 110 L 98 88 L 98 32 L 116 14 L 169 71 Z" fill="#0E1116"/>
+  <path d="M 169 49 L 244 49 L 222 71 L 169 71 Z" fill="#2F6DB5"/>
 </svg>

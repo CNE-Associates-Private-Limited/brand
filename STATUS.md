@@ -5,7 +5,7 @@
 | Brand name | **CNE Associates** (the legal name; no studio name) | 2026-09-06 |
 | Studio name "Lenswright" | **retired**, rejected by the founder | 2026-09-06 |
 | Class 42 trademark, India then US | not filed | |
-| Mark | **decided: the heavy CNE lettermark** (superseded the softened monoline the same day) | 2026-09-06 |
+| Mark | **DECIDED by Anmol: Recraft round1-r3, redrawn as exact geometry** | 2026-09-06 |
 | Expansion | "Capability, Not Experiments" | 2026-09-06 |
 | Tokens v0.1 | built, contrast passes AA | 2026-09-06 |
 | Canva brand kit | not created | |
@@ -76,4 +76,9 @@ octagon seal, is not a logo but is a stronger square mark** than the C-with-core
 favicon and avatar. Both are traced output and must be redrawn as exact geometry before use. Agent session
 closed at 858 credits. Comparison: `dist/explore/recraft/compare.png`; Figma board "Recraft candidates".
 
-Open decision: adopt R6's octagon-seal construction as the square `MARK` (redrawn), keep the lettermark as `LOGO`.
+**Decision (Anmol, 2026-09-06): round1-r3 is the mark.** Redrawn as exact geometry in `mark-geometry.mjs`:
+semicircle C (R 50, r 28) with 45-degree bracket terminals, N stem chamfered to slot into the bracket at a
+constant 5.7-unit gap, N diagonal (slope 1.075) fused into the E spine, E arms cut at 45 degrees in one
+direction, middle arm lens blue and 8 shorter. The square mark is that C with a lens core; the R6 octagon seal is
+kept in `dist/explore/recraft/` as an alternative, not adopted. Every asset regenerated; 3D re-rendered as an
+extruded plate. Figma board "R3 final, exact geometry" holds the editable vectors.

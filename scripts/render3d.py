@@ -229,7 +229,7 @@ def extruded(name, points, centre, mat, depth=0.9, edge=0.12):
 
 parts = []
 if mark_kind == "cne":
-    centre = (160, 50)
+    centre = (121, 50)
     parts.append(extruded("c", POLY["C"], centre, ring_mat))
     parts.append(extruded("ne", POLY["NE"], centre, ring_mat))
     parts.append(extruded("arm", POLY["ARM"], centre, slit_mat, depth=1.0))
@@ -440,7 +440,7 @@ def render(name, tilt_x=0.0, tilt_z=0.0, cam_z=0.0, cam_y=-26.0):
     print("rendered", scene.render.filepath)
 
 
-DIST = 126.0 if WIDE else 40.0
+DIST = 104.0 if WIDE else 40.0
 render(f"{mark_kind}-3d-front.png", cam_y=-DIST)
 render(
     f"{mark_kind}-3d-tilt.png",
