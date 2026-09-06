@@ -1,14 +1,17 @@
 # pyright: reportMissingImports=false
-"""Renders the CNE Associates aperture mark as a physical object with Blender (headless).
+"""Renders the CNE Associates mark as a physical object with Blender (headless).
 
-Usage:  blender -b --python scripts/render3d.py -- <out_dir> [samples] [aperture|iris|focal]
-Output: <out_dir>/aperture-3d-front.png, aperture-3d-tilt.png, aperture-3d-hero.png (RGBA, 2048px)
+Usage:  blender -b --python scripts/render3d.py -- <out_dir> [samples] [cne|mark-c]
+Output: <out_dir>/<kind>-3d-front.png, <kind>-3d-tilt.png, <kind>-3d-hero.png (RGBA)
 
-Geometry follows tokens/tokens.json: ring r56 stroke 12 (outer 62, inner 50), slit 72x18, in mark units / 10.
-Materials: ring = dark anodised metal (ink), slit = lit glass (lens colour). Two cameras: straight-on and tilted.
+  cne     the wide CNE lettermark, rendered at 2560 x 1100
+  mark-c  the square C with its lens core, rendered at 2048 x 2048
+
+Geometry comes from dist/mark-polygons.json, written by scripts/marks.mjs from scripts/mark-geometry.mjs, so
+this file never carries its own copy of the letterforms. One grid unit is 0.1 Blender units. The letters are
+brushed-steel plates with a rounded edge; the accent (the E's middle arm, the C's core) is lit lens-blue glass.
 """
 
-import collections
 import json
 import math
 import os
@@ -19,25 +22,15 @@ import bpy
 out_dir = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else "dist/3d"
 extra = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
 samples = int(extra[1]) if len(extra) > 1 else 256
-mark_kind = (
-    extra[2] if len(extra) > 2 else "aperture"
-)  # aperture | iris | focal | aperture-c | c-stack
+mark_kind = extra[2] if len(extra) > 2 else "cne"
+if mark_kind not in ("cne", "mark-c"):
+    raise SystemExit(f"unknown mark kind {mark_kind}: expected cne or mark-c")
 os.makedirs(out_dir, exist_ok=True)
 
-INK = (0.012, 0.015, 0.02, 1.0)  # deep anodised, reads as #0E1116 under studio light
 LENS = (0.184, 0.427, 0.710, 1.0)  # #2F6DB5 in linear-ish terms
-LENS_GLOW = (0.436, 0.627, 0.878, 1.0)  # #6FA0E0
-
-# Per-mark body material: (base colour, metallic, roughness). The monograms are stroked forms with far less
-# surface than the solid ring, so they need a lighter alloy to separate from the black studio.
-_DARK_ALLOY = ((0.03, 0.036, 0.046, 1.0), 0.75, 0.38)
-_BRUSHED_STEEL = ((0.14, 0.152, 0.172, 1.0), 0.88, 0.26)
-METAL = collections.defaultdict(lambda: _DARK_ALLOY)
-METAL["aperture"] = (INK, 0.85, 0.34)
-METAL["aperture-c"] = _BRUSHED_STEEL
-METAL["c-stack"] = _BRUSHED_STEEL
-METAL["cne"] = _BRUSHED_STEEL
-METAL["mark-c"] = _BRUSHED_STEEL
+# Body: brushed steel. Flat plates have little surface to catch the strips, so the alloy is lighter than
+# the ink colour; under the black studio it still reads as near-black metal.
+BODY = ((0.14, 0.152, 0.172, 1.0), 0.88, 0.26)  # base colour, metallic, roughness
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
@@ -98,13 +91,8 @@ def material(
     return m
 
 
-ring_mat = material(
-    "ink-metal",
-    METAL[mark_kind][0],
-    metallic=METAL[mark_kind][1],
-    roughness=METAL[mark_kind][2],
-)
-slit_mat = material(
+body_mat = material("ink-metal", BODY[0], metallic=BODY[1], roughness=BODY[2])
+accent_mat = material(
     "lens-glass",
     (0.05, 0.14, 0.34, 1.0),
     metallic=0.0,
@@ -120,69 +108,9 @@ def smooth(obj):
         poly.use_smooth = True
 
 
-def ring_object(outer=6.2, inner_r=5.0, depth=1.2):
-    """Outer cylinder minus inner cylinder, then a bevel for a machined edge."""
+def disc(name, radius, depth, mat):
     bpy.ops.mesh.primitive_cylinder_add(
-        vertices=256, radius=outer, depth=depth, location=(0, 0, 0)
-    )
-    ring = bpy.context.active_object
-    ring.name = "ring"
-    bpy.ops.mesh.primitive_cylinder_add(
-        vertices=256, radius=inner_r, depth=depth + 1, location=(0, 0, 0)
-    )
-    inner = bpy.context.active_object
-    boolean = ring.modifiers.new("cut", "BOOLEAN")
-    boolean.operation = "DIFFERENCE"
-    boolean.object = inner
-    bpy.context.view_layer.objects.active = ring
-    bpy.ops.object.modifier_apply(modifier="cut")
-    bpy.data.objects.remove(inner, do_unlink=True)
-    bevel = ring.modifiers.new("bevel", "BEVEL")
-    bevel.width = 0.34
-    bevel.segments = 10
-    ring.data.materials.append(ring_mat)
-    smooth(ring)
-    return ring
-
-
-def bar(name, size, location=(0, 0, 0), rot_z=0.0, mat=None, round_w=0.44):
-    """A rounded bar: cube scaled to size with a heavy bevel, so the ends and edges read as machined."""
-    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0))
-    obj = bpy.context.active_object
-    obj.name = name
-    obj.scale = size
-    bpy.ops.object.transform_apply(scale=True)
-    obj.location = location
-    obj.rotation_euler = (0, 0, rot_z)
-    b = obj.modifiers.new("round", "BEVEL")
-    b.width = round_w
-    b.segments = 12
-    obj.data.materials.append(mat or ring_mat)
-    smooth(obj)
-    return obj
-
-
-def arc_tube(name, radius, start_deg, end_deg, thickness, mat, segments=128):
-    """A stroked arc with round caps: a poly curve swept by a circular bevel."""
-    curve = bpy.data.curves.new(name, type="CURVE")
-    curve.dimensions = "3D"
-    curve.bevel_depth = thickness / 2
-    curve.bevel_resolution = 12
-    curve.use_fill_caps = True
-    spline = curve.splines.new("POLY")
-    spline.points.add(segments - 1)
-    for i in range(segments):
-        a = math.radians(start_deg + (end_deg - start_deg) * i / (segments - 1))
-        spline.points[i].co = (radius * math.cos(a), radius * math.sin(a), 0.0, 1.0)
-    obj = bpy.data.objects.new(name, curve)
-    bpy.context.collection.objects.link(obj)
-    obj.data.materials.append(mat)
-    return obj
-
-
-def disc(name, radius, depth, mat, z=0.0):
-    bpy.ops.mesh.primitive_cylinder_add(
-        vertices=128, radius=radius, depth=depth, location=(0, 0, z)
+        vertices=128, radius=radius, depth=depth, location=(0, 0, 0)
     )
     obj = bpy.context.active_object
     obj.name = name
@@ -192,18 +120,6 @@ def disc(name, radius, depth, mat, z=0.0):
     obj.data.materials.append(mat)
     smooth(obj)
     return obj
-
-
-# Mark geometry comes from dist/mark-polygons.json, written by scripts/marks.mjs from mark-geometry.mjs,
-# so this file never carries its own copy of the letterforms. Grid is 0..320 x 0..100 for the logo, 0..140 for
-# the square mark; one grid unit is 0.1 Blender units.
-
-with open(
-    os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "dist", "mark-polygons.json"
-    )
-) as fh:
-    POLY = json.load(fh)
 
 
 def extruded(name, points, centre, mat, depth=0.9, edge=0.12):
@@ -227,87 +143,31 @@ def extruded(name, points, centre, mat, depth=0.9, edge=0.12):
     return obj
 
 
+with open(
+    os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "dist", "mark-polygons.json"
+    )
+) as fh:
+    POLY = json.load(fh)
+
 parts = []
 if mark_kind == "cne":
+    # Logo grid 0..242 x 0..100; centre on the letters, not the viewBox.
     centre = (121, 50)
-    parts.append(extruded("c", POLY["C"], centre, ring_mat))
-    parts.append(extruded("ne", POLY["NE"], centre, ring_mat))
-    parts.append(extruded("arm", POLY["ARM"], centre, slit_mat, depth=1.0))
-elif mark_kind == "mark-c":
+    parts.append(extruded("c", POLY["C"], centre, body_mat))
+    parts.append(extruded("ne", POLY["NE"], centre, body_mat))
+    parts.append(extruded("arm", POLY["ARM"], centre, accent_mat, depth=1.0))
+else:
+    # Square grid 0..140; the C sits at MARK_C_OFFSET and the core is a disc.
     ox, oy = POLY["MARK_C_OFFSET"]
     parts.append(
-        extruded("c", [[x + ox, y + oy] for x, y in POLY["C"]], (70, 70), ring_mat)
+        extruded("c", [[x + ox, y + oy] for x, y in POLY["C"]], (70, 70), body_mat)
     )
     d = POLY["MARK_DOT"]
-    core = disc("core", d["r"] / 10.0, 1.0, slit_mat)
+    core = disc("core", d["r"] / 10.0, 1.0, accent_mat)
     core.location = ((d["cx"] - 70) / 10.0, (70 - d["cy"]) / 10.0, 0.0)
     parts.append(core)
-elif mark_kind == "aperture-c":
-    # The initial as an open ring with a lit core (mark units / 10).
-    parts.append(arc_tube("c", 4.8, 42, 318, 1.6, ring_mat))
-    parts.append(disc("core", 1.3, 0.9, slit_mat))
-elif mark_kind == "c-stack":
-    # The open C holding three layers, the middle one lit.
-    parts.append(arc_tube("c", 5.2, 52, 308, 1.4, ring_mat))
-    parts.append(bar("layer-top", (4.4, 0.9, 0.8), (0, 1.05, 0), 0.0, ring_mat, 0.3))
-    parts.append(bar("layer-mid", (6.0, 0.9, 0.8), (0, 0.0, 0), 0.0, slit_mat, 0.3))
-    parts.append(bar("layer-bot", (4.4, 0.9, 0.8), (0, -1.05, 0), 0.0, ring_mat, 0.3))
-elif mark_kind == "aperture":
-    parts.append(ring_object())
-    parts.append(bar("slit", (7.2, 1.8, 0.9), mat=slit_mat))
-elif mark_kind == "focal":
-    parts.append(ring_object())
-    bpy.ops.mesh.primitive_cylinder_add(
-        vertices=128, radius=1.7, depth=0.9, location=(0, 0, 0)
-    )
-    core = bpy.context.active_object
-    core.name = "core"
-    cb = core.modifiers.new("round", "BEVEL")
-    cb.width = 0.3
-    cb.segments = 10
-    core.data.materials.append(slit_mat)
-    smooth(core)
-    parts.append(core)
-elif mark_kind == "iris":
-    # Six blades: each side of a hexagon (r 3.0) extended 3.4 past one vertex, matching the SVG.
-    inner_r = 3.0
-    for i in range(6):
-        a1 = math.radians(i * 60 - 90)
-        a2 = math.radians(i * 60 - 30)
-        x1, y1 = inner_r * math.cos(a1), inner_r * math.sin(a1)
-        x2, y2 = inner_r * math.cos(a2), inner_r * math.sin(a2)
-        dx, dy = x2 - x1, y2 - y1
-        ln = math.hypot(dx, dy)
-        xe, ye = x2 + dx / ln * 3.4, y2 + dy / ln * 3.4
-        length = math.hypot(xe - x1, ye - y1)
-        mid = ((x1 + xe) / 2, (y1 + ye) / 2, 0)
-        parts.append(
-            bar(
-                f"blade{i}",
-                (length + 0.4, 1.1, 0.8),
-                mid,
-                math.atan2(ye - y1, xe - x1),
-                ring_mat,
-                0.36,
-            )
-        )
-    # The lit opening: a hexagonal glass plate set slightly behind the blades.
-    bpy.ops.mesh.primitive_cylinder_add(
-        vertices=6, radius=2.45, depth=0.5, location=(0, 0, -0.45)
-    )
-    plate = bpy.context.active_object
-    plate.name = "opening"
-    plate.rotation_euler = (0, 0, math.radians(-90 + 30))
-    pb = plate.modifiers.new("round", "BEVEL")
-    pb.width = 0.12
-    pb.segments = 6
-    plate.data.materials.append(slit_mat)
-    smooth(plate)
-    parts.append(plate)
-else:
-    raise SystemExit(f"unknown mark kind {mark_kind}")
 
-# Group so the whole mark can be tilted.
 for part in parts:
     if part.type == "MESH":
         smooth(part)
@@ -317,19 +177,6 @@ root = bpy.context.active_object
 root.name = "mark"
 for part in parts:
     part.parent = root
-
-
-# Lighting: soft key from upper left, cool rim from behind right, large top fill.
-def area(name, loc, rot, energy, size, color=(1, 1, 1)):
-    bpy.ops.object.light_add(type="AREA", location=loc)
-    lamp = bpy.context.active_object
-    lamp.name = name
-    lamp.rotation_euler = rot
-    lamp.data.energy = energy
-    lamp.data.size = size
-    lamp.data.color = color
-    return lamp
-
 
 world = bpy.data.worlds.new("world")
 scene.world = world
@@ -364,6 +211,8 @@ def softbox(name, loc, rot, scale, strength, color=(1.0, 1.0, 1.0)):
     return plane
 
 
+# Lighting: top strip, warm-neutral left strip, cool right strip, and a large soft key from upper front-left
+# so the flat faces reflect something other than the black studio.
 softbox("strip-top", (0, -8, 18), (math.radians(25), 0, 0), (24, 1.1, 1), 4.5)
 softbox(
     "strip-left",
@@ -380,20 +229,18 @@ softbox(
     2.4,
     (0.75, 0.85, 1.0),
 )
-# Flat-faced marks need a large soft key from upper front-left, or their faces only reflect the black studio.
-if mark_kind != "aperture":
-    key = softbox(
-        "key-front",
-        (-18, -30, 16),
-        (math.radians(62), 0, math.radians(-30)),
-        (34, 34, 1),
-        0.9,
-        (0.86, 0.9, 1.0),
-    )
-    key.rotation_euler = (math.radians(90) - math.atan2(16, 30), 0, math.radians(-31))
+key = softbox(
+    "key-front",
+    (-18, -30, 16),
+    (math.radians(62), 0, math.radians(-30)),
+    (34, 34, 1),
+    0.9,
+    (0.86, 0.9, 1.0),
+)
+key.rotation_euler = (math.radians(90) - math.atan2(16, 30), 0, math.radians(-31))
 scene.view_settings.exposure = 0.35 if WIDE else -0.6
 
-# Compositor glow on the emissive slit.
+# Compositor glow on the emissive accent.
 try:
     scene.use_nodes = True
     tree = scene.node_tree
@@ -419,7 +266,6 @@ try:
 except Exception as exc:  # noqa: BLE001
     print("compositor glow skipped:", exc)
 
-# Camera.
 bpy.ops.object.camera_add(location=(0, -26, 0))
 cam = bpy.context.active_object
 cam.data.lens = 85
@@ -428,11 +274,8 @@ scene.camera = cam
 
 
 def render(name, tilt_x=0.0, tilt_z=0.0, cam_z=0.0, cam_y=-26.0):
-    root.rotation_euler = (
-        math.radians(90 + tilt_x),
-        0,
-        math.radians(tilt_z),
-    )  # ring faces the camera at tilt 0
+    # The plate lies in XY; +90 on X stands it up to face the camera at tilt 0.
+    root.rotation_euler = (math.radians(90 + tilt_x), 0, math.radians(tilt_z))
     cam.location = (0, cam_y, cam_z)
     cam.rotation_euler = (math.radians(90) - math.atan2(cam_z, -cam_y), 0, 0)
     scene.render.filepath = os.path.join(out_dir, name)

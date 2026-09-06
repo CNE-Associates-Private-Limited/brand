@@ -68,9 +68,11 @@
   "MotionEase": [0.2,0.7,0.2,1],
   "MotionDurationFast": "120ms",
   "MotionDuration": "220ms",
-  "MarkRingRadius": 56,
-  "MarkRingStroke": 12,
-  "MarkSlitWidth": 72,
-  "MarkSlitHeight": 18,
+  "MarkCapHeight": 100,
+  "MarkStroke": 22,
+  "MarkCOuterRadius": 50,
+  "MarkCInnerRadius": 28,
+  "MarkCutAngleDeg": 45,
+  "MarkCoreRadius": 13,
   "MarkMinSizePx": 16
 }

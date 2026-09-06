@@ -4,81 +4,49 @@
 |---|---|---|
 | Brand name | **CNE Associates** (the legal name; no studio name) | 2026-09-06 |
 | Studio name "Lenswright" | **retired**, rejected by the founder | 2026-09-06 |
-| Class 42 trademark, India then US | not filed | |
+| Expansion of the initials | **"Creating Next Everything"**, with the descriptor "Enterprise AI Enablement" (Anmol's line; replaces the interim "Capability, Not Experiments") | 2026-09-06 |
 | Mark | **DECIDED by Anmol: Recraft round1-r3, redrawn as exact geometry** | 2026-09-06 |
-| Expansion | "Capability, Not Experiments" | 2026-09-06 |
+| Brand kit | rebuilt on the decided mark; every exploration removed from the tree | 2026-09-06 |
+| Class 42 trademark, India then US | not filed | |
 | Tokens v0.1 | built, contrast passes AA | 2026-09-06 |
 | Canva brand kit | not created | |
-| Figma library | file created (Lenswright brand, to rename), library not built | 2026-09-06 |
+| Figma | file `LyH3kgyj4rlD9TAXFGpNVE`, board "R3 final, exact geometry" holds the editable vectors; library not built | 2026-09-06 |
 
 The brand is the legal entity name, so nothing is gated on a naming decision any more. "CNE" alone is allowed
 only on a surface where the full name already appears. The legal line, "CNE Associates Private Limited ·
 CIN U80903UP2021PTC148406 · GSTIN 09AAJCC6013D1ZY", stays on legal, invoice and footer surfaces.
 
-## 2026-09-06 · Mark, round 5: CNE monograms (open)
+## 2026-09-06 · The mark: decided
 
-The name was settled as CNE Associates, so the mark brief changed from an abstract symbol to a monogram.
-Six were drawn as exact geometry (`pnpm explore:monograms` → `dist/explore/monograms.png` and
-`dist/explore/monograms/*.svg`): Aperture C, C-stack, Nested arcs, Augmented ring, CNE monoline, Block N.
-Aperture C and C-stack were built as machined objects (`render3d.py` mark kinds `aperture-c` and `c-stack`,
-which use a brushed-steel alloy so a stroked form separates from the black studio).
-Recommendation: **C-stack**. Decision pending; `marks/` still carries the old aperture until it is made.
+**Anmol chose Recraft round1-r3.** It is redrawn as exact geometry in `scripts/mark-geometry.mjs` (cap 100,
+stroke 22): a semicircle C (R 50, r 28) with 45-degree bracket terminals; the N's stem chamfered to slot into that
+bracket at a constant 5.7-unit gap; the N's diagonal (slope 1.075) fused into the E's spine; the E's arms cut at
+45 degrees in one direction, the middle arm lens blue and 8 shorter. The square mark is that C with a lens core.
+Every asset is generated from that one file: `marks/`, the lockups, avatars, banner, OG image, icon set, the 3D
+plates (`render3d.py` reads `dist/mark-polygons.json`), the brand board and the mark sheet.
 
-## 2026-09-06 · Mark, rounds 3 and 4 (closed, all rejected)
+Same day, on Anmol's instruction, every other mark and study was removed from the tree: the aperture ring, the
+Iris/Focal/Prism/Pulse/Core round, the FLUX-generated candidates and their traces, the six monograms, the Figma
+lettermark studies, the softened and heavy hand-built lettermarks, and the Recraft rounds. They remain in git
+history up to `a3d5c1d`; the Recraft originals, including the R3 trace the geometry was measured from, are at
+`8d3b0e7` under `dist/explore/recraft/`. The 3D script now knows only `cne` and `mark-c`.
 
-Anmol likes the dimensional direction but the aperture mark reads "lens", not "intelligence". Five candidates were explored (`pnpm explore:marks` → `dist/explore/`): Iris, Focal, Prism, Pulse, Core. Iris and Focal were built as objects with `scripts/render3d.py` (mark kinds `aperture | iris | focal`). Recommendation: Iris. Decision pending; `marks/` and all rendered assets still carry the aperture until it is made.
+Two traps recorded so they are not repeated: a horizontal bar inside the square C reads as a euro sign, so the
+core is a dot; and a coloured bar across a whole wordmark reads as a strikethrough.
 
-Open-source generation route (2026-09-06): `pnpm explore:logos` generates 40 candidates locally with FLUX.2 [klein] 4B via mflux from palette-driven prompts (`scripts/logo-gen.sh`, `scripts/logo-gen-pass2.sh`); `scripts/trace-logo.sh` traces a pick to a two-colour SVG with potrace. Top eight ranked in `dist/explore/generated-top8.png`. Any generated mark chosen must be redrawn by hand as clean geometry in `marks/` before use; the trace is a reference, not the asset.
+## 2026-09-06 · Copy lines
 
-## 2026-09-06 · Mark: DECIDED (heavy)
+`scripts/copy.mjs` is the only place the brand lines live. Expansion "Creating Next Everything" (set under the
+wordmark in every lockup and as the essence line on the board), descriptor "Enterprise AI Enablement" (paired with
+it on the banner), hero "Put an intelligence layer into your business." (from the positioning work), domain
+`cne-associates.com`, and the legal line. "Capability, Not Experiments" was an interim line and is withdrawn.
 
-Anmol rejected the softened monoline as "a logo for a blog or documentation page". Correct: monoline with round
-caps is the default look of developer docs, and a stroke has no mass. Replaced the same day with heavy solid cut
-letterforms: cap 100, stem 26, every outer corner and terminal at 45 degrees, N and E fused on one stem. The NE
-outline is traced as a single polygon (the two notches are the N's counters) so the SVG is one path and the 3D
-extrusion has no overlapping faces. 3D is now a true extruded plate (`extruded()` in render3d.py, 2D curve with
-fill, extrude and bevel), fed from `dist/mark-polygons.json` so Blender never carries its own copy.
+## History
 
-## 2026-09-06 · Mark: first decision, softened monoline (superseded above)
-
-The softened CNE lettermark is the mark. Two forms from one construction, both in `scripts/mark-geometry.mjs`:
-the wide `LOGO` (420 x 160, stroke 22) and the square `MARK`, the chamfered C with a lens core (140, stroke 20).
-Every turn is 45 or 90 degrees; every join and cap is round, which is what makes the angular cut read as smooth.
-`marks/` is regenerated with `pnpm build:marks`, and `render.mjs` and `board.mjs` now import the same geometry, so
-the mark can only ever change in one place. 3D is a solid plate sweep (`render3d.py` kinds `cne` and `mark-c`),
-not a round tube.
-
-Two traps found and worth not repeating: a horizontal bar inside the square C reads as a euro sign, so the accent
-there is a dot; and a coloured bar drawn across the whole wordmark reads as a strikethrough.
-
-Open: the plate sweep still pinches slightly at the sharpest corners, and the wordmark lockup with
-"Capability, Not Experiments" is not drawn yet.
-
-## 2026-09-06 · Mark, round 6: CNE lettermark in Figma (superseded by the decision above)
-
-Anmol asked to try the lettermark route: "CNE" written with angular twists rather than a symbol. Built as live
-vectors in the Figma file (LyH3kgyj4rlD9TAXFGpNVE, page "Marks"), set in Space Grotesk Bold, flattened, then cut
-with boolean operations so everything stays editable. Six treatments on the "CNE lettermark studies" board:
-01 geometric, 02 split shift, 03 stencil, 04 oblique, 05 oblique stencil, 06 chamfered tile. The "CNE lettermark
-refined" board carries the recommendation, **oblique with lit seams**, at 168 / 64 / 32 / 18 px.
-
-Two things learned the hard way and worth not repeating: a lens bar drawn across the whole wordmark reads as a
-strikethrough, so every accent must be intersected with the letterforms; and `figma.intersect` takes the
-intersection of *all* nodes passed, so two non-overlapping stripes in one call produce an empty result.
-
-## 2026-09-06 · Recraft agent, same brief (validation round)
-
-Anmol asked for Recraft's agent to be used directly. Driven through the logged-in Studio (Chat tab, "Vector
-logo" starting point, V4.1 Vector) with the exact construction brief of the heavy lettermark. Two rounds, six
-native-SVG results, saved in `dist/explore/recraft/`. Verdict: **R2 independently converged on the hand-built
-heavy lettermark** (heavy slab, 45° cuts, fused N/E), which validates the direction from a second maker. **R6, the
-octagon seal, is not a logo but is a stronger square mark** than the C-with-core, and is the candidate for
-favicon and avatar. Both are traced output and must be redrawn as exact geometry before use. Agent session
-closed at 858 credits. Comparison: `dist/explore/recraft/compare.png`; Figma board "Recraft candidates".
-
-**Decision (Anmol, 2026-09-06): round1-r3 is the mark.** Redrawn as exact geometry in `mark-geometry.mjs`:
-semicircle C (R 50, r 28) with 45-degree bracket terminals, N stem chamfered to slot into the bracket at a
-constant 5.7-unit gap, N diagonal (slope 1.075) fused into the E spine, E arms cut at 45 degrees in one
-direction, middle arm lens blue and 8 shorter. The square mark is that C with a lens core; the R6 octagon seal is
-kept in `dist/explore/recraft/` as an alternative, not adopted. Every asset regenerated; 3D re-rendered as an
-extruded plate. Figma board "R3 final, exact geometry" holds the editable vectors.
+Name: two studio-name rounds (50 names, then 69 domains checked) found nothing worth a second trademark;
+Lenswright was rejected on 2026-09-06 and the brand became the legal name. Mark: the aperture ring (rounds 1
+and 2, the dimensional direction was liked), five abstract candidates (rounds 3 and 4, all rejected as "lens, not
+intelligence"), open-source generation with FLUX.2 klein and potrace (references only), six CNE monograms (round
+5), angular lettermark studies in Figma (round 6), a softened monoline (rejected as "a logo for a blog page"), a
+heavy cut lettermark, then a Recraft agent round with the same brief in which R2 independently converged on the
+heavy lettermark and Anmol chose R3. The full decision trail is in the PR history of this repo.
