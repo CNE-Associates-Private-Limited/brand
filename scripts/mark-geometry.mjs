@@ -1,6 +1,6 @@
 // The single source of truth for the CNE Associates mark geometry.
 //
-// Chosen by Anmol from the Recraft round (round1-r3), redrawn here as exact geometry. Cap height 100, stroke 22.
+// Decided by Anmol on 2026-09-06 and drawn here as exact geometry. Cap height 100, stroke 22.
 // The C is a true semicircle on the left with 45-degree terminals that form a bracket on the right; the N's
 // stem is chamfered at 45 degrees to slot into that bracket with a constant 5.7-unit gap; the N's diagonal fuses
 // into the E's spine; all three E arms are cut at 45 degrees in the same direction. Soft C, hard N and E.

@@ -99,7 +99,7 @@ const hero3d = await dataUri("dist/3d/cne-3d-hero.png", 1400);
 const tilt3d = await dataUri("dist/3d/mark-c-3d-tilt.png", 900);
 const atmosphere = await dataUri("dist/atmosphere/lit-arm.png", 1344);
 
-// The construction drawing: the R3 geometry over its guides, in the logo's own coordinates (letters inset 10).
+// The construction drawing: the mark geometry over its guides, in the logo's own coordinates (letters inset 10).
 const dash = (el) => h(el.type, { ...el.props, fill: "none", stroke: GUIDE, strokeWidth: 0.6, strokeDasharray: "2 3" });
 const construction = (width) =>
   h(

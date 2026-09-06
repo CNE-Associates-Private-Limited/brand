@@ -2,60 +2,50 @@
 
 | Item | Status | Date |
 |---|---|---|
-| Brand name | **CNE Associates** (the legal name; no studio name) | 2026-09-06 |
-| Studio name "Lenswright" | **retired**, rejected by the founder | 2026-09-06 |
-| Expansion of the initials | **"Creating Next Everything"**, with the descriptor "Enterprise AI Enablement" (Anmol's line; replaces the interim "Capability, Not Experiments") | 2026-09-06 |
-| Mark | **DECIDED by Anmol: Recraft round1-r3, redrawn as exact geometry** | 2026-09-06 |
-| Brand kit | rebuilt on the decided mark; every exploration removed from the tree | 2026-09-06 |
+| Brand name | **CNE Associates**, the legal name, set in full; no studio name | 2026-09-06 |
+| Expansion of the initials | **"Creating Next Everything"**; descriptor "Enterprise AI Enablement" | 2026-09-06 |
+| Mark | **Decided by Anmol**: the CNE lettermark and the C mark, drawn as exact geometry in `scripts/mark-geometry.mjs` | 2026-09-06 |
+| Brand kit | built from that geometry: marks, lockups, avatars, LinkedIn banner, OG image, icon set, 3D renders, atmosphere set, brand board, mark sheet | 2026-09-06 |
+| Figma | file `LyH3kgyj4rlD9TAXFGpNVE`: page "Brand kit" (components for logo, mark, avatar and the three lockups on both grounds; "CNE colour" variables in Light and Dark modes; four text styles) and page "Marks" (the editable geometry board) | 2026-09-06 |
+| Tokens v0.1 | built; every core pair passes WCAG AA and CI proves it | 2026-09-06 |
 | Class 42 trademark, India then US | not filed | |
-| Tokens v0.1 | built, contrast passes AA | 2026-09-06 |
 | Canva brand kit | not created | |
-| Figma | file `LyH3kgyj4rlD9TAXFGpNVE`: page "Brand kit" (components for logo, mark, avatar and the three lockups on both grounds; "CNE colour" variables in Light and Dark modes; four text styles), page "Marks" keeps only the R3 board; study boards deleted | 2026-09-06 |
 
-The brand is the legal entity name, so nothing is gated on a naming decision any more. "CNE" alone is allowed
-only on a surface where the full name already appears. The legal line, "CNE Associates Private Limited ·
-CIN U80903UP2021PTC148406 · GSTIN 09AAJCC6013D1ZY", stays on legal, invoice and footer surfaces.
+Rules that follow from the table: "CNE" alone is allowed only on a surface where the full name already appears.
+The legal line, "CNE Associates Private Limited · CIN U80903UP2021PTC148406 · GSTIN 09AAJCC6013D1ZY", stays on
+legal, invoice and footer surfaces. The mark, the copy lines and the tokens change only by a decision recorded here.
 
-## 2026-09-06 · The mark: decided
+## The mark
 
-**Anmol chose Recraft round1-r3.** It is redrawn as exact geometry in `scripts/mark-geometry.mjs` (cap 100,
-stroke 22): a semicircle C (R 50, r 28) with 45-degree bracket terminals; the N's stem chamfered to slot into that
-bracket at a constant 5.7-unit gap; the N's diagonal (slope 1.075) fused into the E's spine; the E's arms cut at
-45 degrees in one direction, the middle arm lens blue and 8 shorter. The square mark is that C with a lens core.
-Every asset is generated from that one file: `marks/`, the lockups, avatars, banner, OG image, icon set, the 3D
-plates (`render3d.py` reads `dist/mark-polygons.json`), the brand board and the mark sheet.
+Cap 100, stroke 22, every terminal and chamfer cut at 45 degrees. The C is a true semicircle (R 50, r 28) whose
+45-degree terminals form a bracket on the right; the N's stem is chamfered to slot into that bracket at a constant
+5.7-unit gap; the N's diagonal (slope 1.075) fuses into the E's spine; the E's three arms are cut in the same
+direction, the middle arm lens blue and 8 shorter. The square mark is the same C with a lens core. Soft C, hard N
+and E. Every asset is generated from the one geometry file: `marks/`, the lockups, avatars, banner, OG image, icon
+set, the 3D plates (`render3d.py` reads `dist/mark-polygons.json`), the brand board and the mark sheet.
 
-Same day, on Anmol's instruction, every other mark and study was removed from the tree: the aperture ring, the
-Iris/Focal/Prism/Pulse/Core round, the FLUX and Canva generated candidates and their traces, the six monograms, the Figma
-lettermark studies, the softened and heavy hand-built lettermarks, and the Recraft rounds. They remain in git
-history up to `a3d5c1d`; the Recraft originals, including the R3 trace the geometry was measured from, are at
-`8d3b0e7` under `dist/explore/recraft/`. The 3D script now knows only `cne` and `mark-c`.
+Two rules of construction: the core inside the C is a dot, never a bar (a bar reads as a euro sign); and no
+coloured bar ever crosses a wordmark (it reads as a strikethrough).
 
-Two traps recorded so they are not repeated: a horizontal bar inside the square C reads as a euro sign, so the
-core is a dot; and a coloured bar across a whole wordmark reads as a strikethrough.
+## Copy lines
 
-## 2026-09-06 · Copy lines
+`scripts/copy.mjs` is the only place the brand lines live: the name; the expansion "Creating Next Everything",
+set in mono caps under the wordmark in every lockup and used as the essence line on the board; the descriptor
+"Enterprise AI Enablement", paired with it on the banner; the hero "Put an intelligence layer into your business."
+from the positioning work; the domain `cne-associates.com`; and the legal line.
 
-`scripts/copy.mjs` is the only place the brand lines live. Expansion "Creating Next Everything" (set under the
-wordmark in every lockup and as the essence line on the board), descriptor "Enterprise AI Enablement" (paired with
-it on the banner), hero "Put an intelligence layer into your business." (from the positioning work), domain
-`cne-associates.com`, and the legal line. "Capability, Not Experiments" was an interim line and is withdrawn.
+## Figma
 
-## History
+Code is the source of truth and Figma mirrors it, so anyone designing there uses the exact assets. Page "Brand
+kit" carries components built from the same SVGs (`Logo / Light|Dark|Mono black|Mono white`, `Mark / …`,
+`Avatar / …`, `Lockup horizontal / …`, `Lockup stacked / …`, `Logo lockup / …`; the lockups are auto-layout with
+live text), the "CNE colour" variable collection (17 roles, Light and Dark modes, values from `tokens/tokens.json`)
+and the text styles `Display / 48`, `Heading / 32`, `Body / 16`, `Label / 12 mono`. Change geometry or tokens
+here, rebuild, then re-sync Figma; never export Figma back into this repo.
 
-Name: two studio-name rounds (50 names, then 69 domains checked) found nothing worth a second trademark;
-Lenswright was rejected on 2026-09-06 and the brand became the legal name. Mark: the aperture ring (rounds 1
-and 2, the dimensional direction was liked), five abstract candidates (rounds 3 and 4, all rejected as "lens, not
-intelligence"), open-source generation with FLUX.2 klein and potrace (references only), six CNE monograms (round
-5), angular lettermark studies in Figma (round 6), a softened monoline (rejected as "a logo for a blog page"), a
-heavy cut lettermark, then a Recraft agent round with the same brief in which R2 independently converged on the
-heavy lettermark and Anmol chose R3. The full decision trail is in the PR history of this repo.
+## Provenance
 
-## 2026-09-06 · Figma mirror
-
-Code stays the source of truth; Figma mirrors it so anyone designing there uses the exact assets. Page "Brand kit"
-carries components built from the same SVGs (`Logo / Light|Dark|Mono black|Mono white`, `Mark / …`, `Avatar / …`,
-`Lockup horizontal / …`, `Lockup stacked / …`, `Logo lockup / …`, the lockups as auto-layout with live text), the
-"CNE colour" variable collection (17 roles, Light and Dark modes, values from `tokens/tokens.json`) and text styles
-`Display / 48`, `Heading / 32`, `Body / 16`, `Label / 12 mono`. Exporting from Figma back into this repo would
-create a second source of truth, so it is not done: change geometry or tokens here, rebuild, then re-sync Figma.
+Anmol chose the lettermark on 2026-09-06 from a Recraft agent round (variant round1-r3) and it was redrawn as
+exact geometry the same day; the original trace is in git history at `8d3b0e7`. Everything drawn or generated
+before that decision, and the studio name considered before the brand became the legal name, was removed from
+the tree on 2026-09-06 and exists only in git history before `fa81c57`.
